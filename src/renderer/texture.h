@@ -6,6 +6,8 @@
 #include <string>
 #include <SDL3/SDL_gpu.h>
 
+#include "imgui.h"
+
 namespace Renderer
 {
   class Texture
@@ -24,5 +26,9 @@ namespace Renderer
       [[nodiscard]] int getWidth() const { return width; };
       [[nodiscard]] int getHeight() const { return height; };
       [[nodiscard]] SDL_GPUTexture* getGPUTex() const { return texture; };
+
+      ImVec2 getSize(float scale = 1.0f) const {
+        return {(float)width * scale, (float)height * scale};
+      };
   };
 }

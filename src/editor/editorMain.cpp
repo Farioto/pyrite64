@@ -4,20 +4,34 @@
 */
 #include "editorMain.h"
 
+#include <atomic>
 #include <cstdio>
+#include <mutex>
 
 #include "imgui.h"
+#include "SDL3/SDL_dialog.h"
 
 namespace
 {
-  bool show_demo_window{};
-  bool show_another_window{};
-  ImVec4 clear_color{0.45f, 0.55f, 0.60f, 1.00f};
-  int counter{0};
+  bool isHoverAdd = false;
+  bool isHoverLast = false;
+
+  constinit bool fileSelectIsOpen{false};
+  constinit std::mutex mtxProjectPath{};
+  constinit std::atomic_bool hasProjectPath{false};
+  constinit std::string projectPath{};
+
+  void cbOpenProject(void *userdata, const char * const *filelist, int filter) {
+    std::lock_guard lock{mtxProjectPath};
+    projectPath = (filelist && filelist[0]) ? filelist[0] : "";
+    hasProjectPath = true;
+  }
 }
 
 Editor::Main::Main(SDL_GPUDevice* device)
-  : texTest{device, "data/img/titleLogo.png"}
+  : texTitle{device, "data/img/titleLogo.png"},
+  texBtnAdd{device, "data/img/cardAdd.svg"},
+  texBtnOpen{device, "data/img/cardLast.svg"}
 {
 }
 
@@ -35,15 +49,71 @@ void Editor::Main::draw()
     | ImGuiWindowFlags_NoBackground
   );
 
-  ImGui::Text("Pyrite64 [v0.0.0-alpha]");               // Display some text (you can use a format strings too)
+  ImVec2 centerPos = {io.DisplaySize.x / 2, io.DisplaySize.y / 2};
+  auto logoSize = texTitle.getSize(0.75f);
 
-  auto logoSize = ImVec2(texTest.getWidth(), texTest.getHeight());
-  logoSize.x *= 0.75f;
-  logoSize.y *= 0.75f;
+  if (isHoverAdd || isHoverLast) {
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+  } else {
+    ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+  }
 
-  ImGui::SetCursorPosX(io.DisplaySize.x / 2 - (logoSize.x/2));
-  ImGui::SetCursorPosY(100);
-  ImGui::Image(ImTextureID(texTest.getGPUTex()),logoSize);
+  ImGui::SetCursorPos({
+    centerPos.x - (logoSize.x/2),
+    centerPos.y - (logoSize.y/2) - 150
+  });
+  ImGui::Image(ImTextureID(texTitle.getGPUTex()),logoSize);
+
+  constexpr float BTN_SPACING = 160;
+
+  auto getBtnPos = [&](ImVec2 size, bool isLeft) {
+    return ImVec2{
+      centerPos.x - (size.x/2) + (isLeft ? -BTN_SPACING : BTN_SPACING),
+      centerPos.y - (size.y/2) + 120
+    };
+  };
+
+  ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+  ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+  ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+
+  auto btnSizeAdd = texBtnAdd.getSize(isHoverAdd ? 0.85f : 0.8f);
+  ImGui::SetCursorPos(getBtnPos(btnSizeAdd, true));
+  ImGui::ImageButton("New Project",
+      ImTextureID(texBtnAdd.getGPUTex()),
+      btnSizeAdd, {0,0}, {1,1}, {0,0,0,0},
+      {1,1,1, isHoverAdd ? 1 : 0.8f}
+  );
+  isHoverAdd = ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly);
+
+  auto btnSizeLast = texBtnOpen.getSize(isHoverLast ? 0.85f : 0.8f);
+  ImGui::SetCursorPos(getBtnPos(btnSizeLast, false));
+  bool wantsOpen = ImGui::ImageButton("Open Project",
+      ImTextureID(texBtnOpen.getGPUTex()),
+      btnSizeLast, {0,0}, {1,1}, {0,0,0,0},
+      {1,1,1,isHoverLast ? 1 : 0.8f}
+  );
+  isHoverLast = ImGui::IsItemHovered(ImGuiHoveredFlags_RectOnly);
+
+  ImGui::PopStyleColor(3);
+
+  // version
+  ImGui::SetCursorPos({14, io.DisplaySize.y - 30});
+  ImGui::Text("Pyrite64 [v0.0.0-alpha]   -   (c) 2025 Max Bebök (HailToDodongo)");
 
   ImGui::End();
+
+  if (wantsOpen && !fileSelectIsOpen) {
+    SDL_ShowOpenFolderDialog(cbOpenProject, nullptr, SDL_GL_GetCurrentWindow(), nullptr, false);
+    fileSelectIsOpen = true;
+  }
+
+  if (hasProjectPath) {
+    std::lock_guard lock{mtxProjectPath};
+    if (!projectPath.empty()) {
+      printf("Open project: %s\n", projectPath.c_str());
+    }
+    fileSelectIsOpen = false;
+    hasProjectPath = false;
+  }
 }

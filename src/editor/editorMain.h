@@ -11,7 +11,9 @@ namespace Editor
   class Main
   {
     private:
-      Renderer::Texture texTest;
+      Renderer::Texture texTitle;
+      Renderer::Texture texBtnAdd;
+      Renderer::Texture texBtnOpen;
 
     public:
       Main(SDL_GPUDevice* device);

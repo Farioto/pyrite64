@@ -14,6 +14,10 @@ add_subdirectory(vendored/SDL_image EXCLUDE_FROM_ALL)
 
 # Create your game executable target as usual
 add_executable(p64editor src/main.cpp
+        # JSON
+        vendored/simdjson/simdjson.cpp
+        vendored/simdjson/simdjson.h
+
         # imgui
         vendored/imgui/backends/imgui_impl_sdl3.cpp
         vendored/imgui/backends/imgui_impl_sdl3.h
@@ -41,9 +45,10 @@ add_executable(p64editor src/main.cpp
         src/project/project.cpp
         src/editor/actions.h
         src/editor/actions.cpp
+        src/utils/json.h
 )
 
-target_include_directories(p64editor PRIVATE vendored/imgui)
+target_include_directories(p64editor PRIVATE vendored/imgui vendored/simdjson)
 
 # Link to the actual SDL3 library.
 target_link_libraries(p64editor PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)

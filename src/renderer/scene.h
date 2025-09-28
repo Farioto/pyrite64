@@ -14,6 +14,7 @@ namespace Renderer
       Scene();
       ~Scene();
 
+      void update();
       void draw();
   };
 }

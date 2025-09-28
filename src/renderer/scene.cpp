@@ -23,7 +23,7 @@ namespace
 
 
   std::vector<Renderer::Vertex> vertices{};
-
+  SDL_GPUTextureCreateInfo texture_info = {};
 }
 
 Renderer::Scene::Scene()
@@ -80,8 +80,16 @@ Renderer::Scene::Scene()
   vertBuff = new Renderer::VertBuffer({sizeof(vertices), ctx.gpu});
   vertBuff->setData(vertices);
 
+}
+
+Renderer::Scene::~Scene() {
+  SDL_ReleaseGPUGraphicsPipeline(ctx.gpu, graphicsPipeline);
+  //SDL_ReleaseGPUTexture(ctx.gpu, fb3D);
+}
+
+void Renderer::Scene::update()
+{
   // Create texture
-  SDL_GPUTextureCreateInfo texture_info = {};
   texture_info.type = SDL_GPU_TEXTURETYPE_2D;
   texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
   texture_info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;
@@ -90,12 +98,8 @@ Renderer::Scene::Scene()
   texture_info.layer_count_or_depth = 1;
   texture_info.num_levels = 1;
   texture_info.sample_count = SDL_GPU_SAMPLECOUNT_1;
+  if (fb3D)SDL_ReleaseGPUTexture(ctx.gpu, fb3D);
   fb3D = SDL_CreateGPUTexture(ctx.gpu, &texture_info);
-}
-
-Renderer::Scene::~Scene() {
-  SDL_ReleaseGPUGraphicsPipeline(ctx.gpu, graphicsPipeline);
-  SDL_ReleaseGPUTexture(ctx.gpu, fb3D);
 }
 
 void Renderer::Scene::draw()

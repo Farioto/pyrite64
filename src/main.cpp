@@ -154,6 +154,8 @@ int main(int, char**)
       ImGui_ImplSDL3_NewFrame();
       ImGui::NewFrame();
 
+      scene.update();
+
       if (ctx.project) {
         editorScene.draw();
       } else {

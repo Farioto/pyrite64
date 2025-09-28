@@ -20,5 +20,7 @@ Editor::Viewport3D::Viewport3D()
 
 void Editor::Viewport3D::draw() {
   ImGui::Text("Viewport");
-  ImGui::Image(ImTextureID(fb3D), {320,240});
+  if (fb3D) {
+    ImGui::Image(ImTextureID(fb3D), {320,240});
+  }
 }

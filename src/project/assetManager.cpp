@@ -12,20 +12,20 @@
 
 namespace
 {
-  std::string serializeConf(Project::AssetManager::AssetConf &conf)
-  {
-    simdjson::builder::string_builder builder{};
-    builder.start_object();
-    builder.append_key_value<"format">(conf.format);
-    builder.append_comma();
-    builder.append_key_value<"baseScale">(conf.baseScale);
-    builder.append_comma();
-    builder.append_key_value<"compression">(static_cast<int>(conf.compression));
-    builder.append_comma();
-    builder.append_key_value<"gltfBVH">(conf.gltfBVH);
-    builder.end_object();
-    return {builder.c_str()};
-  }
+}
+
+std::string Project::AssetManager::AssetConf::serialize() const {
+  simdjson::builder::string_builder builder{};
+  builder.start_object();
+  builder.append_key_value<"format">(format);
+  builder.append_comma();
+  builder.append_key_value<"baseScale">(baseScale);
+  builder.append_comma();
+  builder.append_key_value<"compression">(static_cast<int>(compression));
+  builder.append_comma();
+  builder.append_key_value<"gltfBVH">(gltfBVH);
+  builder.end_object();
+  return {builder.c_str()};
 }
 
 void Project::AssetManager::reload() {
@@ -83,10 +83,14 @@ void Project::AssetManager::reload() {
   }
 }
 
-void Project::AssetManager::save() {
-  for (auto &entry : entries) {
+void Project::AssetManager::save()
+{
+  for(auto &entry : entries)
+  {
+    if(entry.type == FileType::UNKNOWN)continue;
+
     auto pathMeta = entry.path + ".conf";
-    auto json = serializeConf(entry.conf);
+    auto json = entry.conf.serialize();
     SDL_SaveFile(pathMeta.c_str(), json.c_str(), json.size());
   }
 }

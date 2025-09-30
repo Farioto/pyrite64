@@ -19,10 +19,14 @@ void Editor::SceneBrowser::draw()
     ctx.project->getScenes().add();
   }
 
+  ImGui::NewLine();
+
   auto &scenes = ctx.project->getScenes().getEntries();
   for (auto &scene : scenes) {
-    ImGui::Bullet();
     ImGui::SameLine();
-    ImGui::Text("%d - %s", scene.id, scene.name.c_str());
+    std::string label = "Scene-" + std::to_string(scene.id);
+    if (ImGui::Button(label.c_str(), {64, 64})) {
+      ctx.project->getScenes().loadScene(scene.id);
+    }
   }
 }

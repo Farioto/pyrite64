@@ -45,6 +45,10 @@ Project::SceneManager::SceneManager()
   reload();
 }
 
+Project::SceneManager::~SceneManager() {
+  delete loadedScene;
+}
+
 void Project::SceneManager::save() {
 }
 
@@ -61,4 +65,9 @@ void Project::SceneManager::add() {
   std::filesystem::create_directory(newPath);
 
   reload();
+}
+
+void Project::SceneManager::loadScene(int id) {
+  delete loadedScene;
+  loadedScene = new Scene(id);
 }

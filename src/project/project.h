@@ -11,6 +11,17 @@
 
 namespace Project
 {
+  struct ProjectConf
+  {
+    std::string name{};
+    std::string romName{};
+    std::string pathEmu{};
+    std::string pathLibdragon{};
+    std::string pathN64Inst{};
+
+    std::string serialize() const;
+  };
+
   class Project
   {
     private:
@@ -21,18 +32,9 @@ namespace Project
       SceneManager scenes{};
 
       void deserialize(const simdjson::simdjson_result<simdjson::dom::element> &doc);
-      std::string serialize() const;
-
 
     public:
-      struct
-      {
-        std::string name{};
-        std::string romName{};
-        std::string pathEmu{};
-        std::string pathLibdragon{};
-        std::string pathN64Inst{};
-      } conf{};
+      ProjectConf conf{};
 
       Project(const std::string &path);
 

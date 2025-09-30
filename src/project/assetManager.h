@@ -36,6 +36,8 @@ namespace Project
         int baseScale{0};
         bool gltfBVH{0};
         ComprTypes compression{ComprTypes::DEFAULT};
+
+        std::string serialize() const;
       };
 
       struct Entry

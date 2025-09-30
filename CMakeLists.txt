@@ -76,6 +76,7 @@ add_executable(p64editor src/main.cpp
         src/project/scene/sceneManager.h
         src/project/scene/sceneManager.cpp
         src/project/scene/scene.h
+        src/project/scene/scene.cpp
 )
 
 target_include_directories(p64editor PRIVATE

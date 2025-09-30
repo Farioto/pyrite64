@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "scene.h"
+
 namespace Project
 {
   struct SceneEntry
@@ -18,9 +20,11 @@ namespace Project
   {
     private:
       std::vector<SceneEntry> entries{};
+      Scene *loadedScene{nullptr};
 
     public:
       SceneManager();
+      ~SceneManager();
 
       void reload();
       void save();
@@ -28,5 +32,8 @@ namespace Project
       [[nodiscard]] const std::vector<SceneEntry> &getEntries() const { return entries; }
 
       void add();
+
+      void loadScene(int id);
+      [[nodiscard]] Scene* getLoadedScene() const { return loadedScene; }
   };
 }

@@ -11,6 +11,13 @@
 
 namespace fs = std::filesystem;
 
+namespace
+{
+  constexpr uint32_t FLAG_CLR_DEPTH = 1 << 0;
+  constexpr uint32_t FLAG_CLR_COLOR = 1 << 1;
+  constexpr uint32_t FLAG_SCR_32BIT = 1 << 2;
+}
+
 void Build::buildScene(Project::Project &project, const Project::SceneEntry &scene, SceneCtx &ctx)
 {
   printf(" - Scene %d: %s\n", scene.id, scene.name.c_str());
@@ -24,9 +31,9 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   uint32_t flags = 0;
   uint32_t objCount = 0;
 
-  if (sc->conf.doClearDepth)flags |= 1 << 0;
-  if (sc->conf.doClearColor)flags |= 1 << 1;
-  if (sc->conf.fbFormat)flags |= 1 << 2;
+  if (sc->conf.doClearDepth)flags |= FLAG_CLR_DEPTH;
+  if (sc->conf.doClearColor)flags |= FLAG_CLR_COLOR;
+  if (sc->conf.fbFormat)flags |= FLAG_SCR_32BIT;
 
   ctx.fileScene = {};
   ctx.fileScene.write<uint16_t>(sc->conf.fbWidth);

@@ -18,7 +18,7 @@ namespace P64::Script::a28ec2e68
     scene.getCamera().target.x += moveX;
 
     if(btn.a) {
-      SceneManager::load(scene.getId() == 0 ? 1 : 0);
+      SceneManager::load(scene.getId() == 1 ? 2 : 1);
     }
 
     actor.pos.x += deltaTime;

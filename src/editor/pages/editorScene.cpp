@@ -8,13 +8,13 @@
 #include "imgui_internal.h"
 #include "../actions.h"
 #include "../../context.h"
-#include "misc/cpp/imgui_stdlib.h"
-#include "../imgui/helper.h"
 
 namespace
 {
   constexpr float HEIGHT_TOP_BAR = 26.0f;
   constexpr float HEIGHT_STATUS_BAR = 32.0f;
+
+  constinit bool projectSettingsOpen{true};
 }
 
 void Editor::Scene::draw()
@@ -59,7 +59,7 @@ void Editor::Scene::draw()
     ImGui::DockBuilderDockWindow("3D-Viewport", dockSpaceID);
 
     // Left
-    ImGui::DockBuilderDockWindow("Project", dockLeftID);
+    //ImGui::DockBuilderDockWindow("Project", dockLeftID);
     ImGui::DockBuilderDockWindow("Scene", dockLeftID);
 
     // Right
@@ -108,22 +108,24 @@ void Editor::Scene::draw()
   ImGui::End();
 
 
-  ImGui::Begin("Project");
+  if (projectSettingsOpen) {
+    constexpr ImVec2 windowSize{500,300};
+    auto screenSize = ImGui::GetMainViewport()->WorkSize;
+    ImGui::SetNextWindowPos({(screenSize.x - windowSize.x) / 2, (screenSize.y - windowSize.y) / 2}, ImGuiCond_Appearing, {0.0f, 0.0f});
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing);
 
-  if (ImGui::CollapsingHeader("Project settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Project settings");
-    ImGui::InpTable::addString("Name", ctx.project->conf.name);
-    ImGui::InpTable::addString("ROM-Name", ctx.project->conf.romName);
-    ImGui::InpTable::end();
-  }
-  if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Environment");
-    ImGui::InpTable::addPath("Emulator", ctx.project->conf.pathEmu);
-    ImGui::InpTable::addPath("N64_INST", ctx.project->conf.pathN64Inst, true, "$N64_INST");
-    ImGui::InpTable::end();
-  }
+    // Thick borders
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0f);
+    ImGui::PushStyleColor(ImGuiCol_Border, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+    ImGui::Begin("Project Settings", &projectSettingsOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking);
+    if (projectSettings.draw()) {
+      projectSettingsOpen = false;
+    }
+    ImGui::End();
 
-  ImGui::End();
+    ImGui::PopStyleColor(1);
+    ImGui::PopStyleVar(1);
+  }
 
   // Top bar
   ImGui::SetNextWindowPos({0,0}, ImGuiCond_Appearing, {0.0f, 0.0f});
@@ -137,6 +139,7 @@ void Editor::Scene::draw()
     if(ImGui::BeginMenu("Project"))
     {
       if(ImGui::MenuItem("Save"))ctx.project->save();
+      if(ImGui::MenuItem("Settings"))projectSettingsOpen = true;
       if(ImGui::MenuItem("Close"))Actions::call(Actions::Type::PROJECT_CLOSE);
       ImGui::EndMenu();
     }

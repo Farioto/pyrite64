@@ -6,6 +6,7 @@
 #include "parts/assetInspector.h"
 #include "parts/assetsBrowser.h"
 #include "parts/logWindow.h"
+#include "parts/projectSettings.h"
 #include "parts/sceneBrowser.h"
 #include "parts/sceneInspector.h"
 #include "parts/viewport3D.h"
@@ -16,6 +17,9 @@ namespace Editor
   {
     private:
       Viewport3D viewport3d{};
+
+      // Editors
+      ProjectSettings projectSettings{};
       AssetsBrowser assetsBrowser{};
       SceneBrowser sceneBrowser{};
       AssetInspector assetInspector{};

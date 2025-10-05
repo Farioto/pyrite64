@@ -181,7 +181,7 @@ int main(int, char**)
     while(!done) {
 
       ctx.isBuildOrRunning = isBuildOrRunning();
-      printf("Frame Start | Time: %.2fms\n", ImGui::GetIO().DeltaTime * 1000.0f);
+      //printf("Frame Start | Time: %.2fms\n", ImGui::GetIO().DeltaTime * 1000.0f);
       SDL_Event event;
       while (SDL_PollEvent(&event))
       {

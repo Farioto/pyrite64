@@ -8,6 +8,7 @@
 #include "parts/logWindow.h"
 #include "parts/projectSettings.h"
 #include "parts/sceneBrowser.h"
+#include "parts/sceneGraph.h"
 #include "parts/sceneInspector.h"
 #include "parts/viewport3D.h"
 
@@ -25,6 +26,7 @@ namespace Editor
       AssetInspector assetInspector{};
       SceneInspector sceneInspector{};
       LogWindow logWindow{};
+      SceneGraph sceneGraph{};
 
       bool dockSpaceInit{false};
 

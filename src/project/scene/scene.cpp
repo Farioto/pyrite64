@@ -6,6 +6,9 @@
 
 #include "scene.h"
 #include <SDL3/SDL.h>
+#include <algorithm>
+
+#include "IconsFontAwesome4.h"
 #include "simdjson.h"
 #include "../../utils/json.h"
 #include "../../context.h"
@@ -16,6 +19,8 @@ namespace
     auto scenesPath = ctx.project->getPath() + "/data/scenes";
     return scenesPath + "/" + std::to_string(id) + "/conf.json";
   }
+
+  constinit uint64_t nextUUID{1};
 }
 
 std::string Project::SceneConf::serialize() const {
@@ -52,6 +57,9 @@ Project::Scene::Scene(int id_)
 {
   printf("Load scene %d\n", id);
 
+  root.id = 0;
+  root.name = "Scene";
+
   auto doc = Utils::JSON::loadFile(getConfPath(id));
   if (doc.is_object()) {
     JSON_GET_STR(name);
@@ -78,4 +86,26 @@ void Project::Scene::save()
   auto pathConfig = getConfPath(id);
   auto json = conf.serialize();
   SDL_SaveFile(pathConfig.c_str(), json.c_str(), json.size());
+}
+
+std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
+  auto child = std::make_shared<Object>(&parent);
+  child->uuid = nextUUID++;
+  child->name = "New Object ("+std::to_string(child->uuid)+")";
+  parent.children.push_back(child);
+  objectsMap[child->uuid] = child;
+  return child;
+}
+
+void Project::Scene::removeObject(Object &obj)
+{
+  if (ctx.selObjectUUID == obj.uuid) {
+    ctx.selObjectUUID = 0;
+  }
+
+  std::erase_if(
+    obj.parent->children,
+    [&obj](const std::shared_ptr<Object> &ref) { return ref->uuid == obj.uuid; }
+  );
+  objectsMap.erase(obj.uuid);
 }

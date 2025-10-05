@@ -18,6 +18,7 @@ struct Context
 
   // Editor state
   uint64_t selAssetUUID{0};
+  uint64_t selObjectUUID{0};
   bool isBuildOrRunning{false};
 };
 

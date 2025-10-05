@@ -62,6 +62,7 @@ void Editor::Scene::draw()
     // Left
     //ImGui::DockBuilderDockWindow("Project", dockLeftID);
     ImGui::DockBuilderDockWindow("Scene", dockLeftID);
+    ImGui::DockBuilderDockWindow("Graph", dockLeftID);
 
     // Right
     ImGui::DockBuilderDockWindow("Asset", dockRightID);
@@ -95,8 +96,13 @@ void Editor::Scene::draw()
   ImGui::End();
 
   if (ctx.project->getScenes().getLoadedScene()) {
+
+    ImGui::Begin("Graph", nullptr, ImGuiWindowFlags_MenuBar);
+      sceneGraph.draw();
+    ImGui::End();
+
     ImGui::Begin("Scene");
-    sceneInspector.draw();
+      sceneInspector.draw();
     ImGui::End();
   }
 

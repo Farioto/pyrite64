@@ -5,7 +5,10 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
+
+#include "object.h"
 #include "../../utils/color.h"
 
 namespace Project
@@ -27,6 +30,7 @@ namespace Project
   {
     private:
       int id{};
+      Object root{nullptr};
 
     public:
       SceneConf conf{};
@@ -34,5 +38,17 @@ namespace Project
       Scene(int id_);
 
       void save();
+      Object& getRootObject() { return root; }
+      std::unordered_map<uint32_t, std::shared_ptr<Object>> objectsMap{};
+
+      std::shared_ptr<Object> addObject(Object &parent);
+      void removeObject(Object &obj);
+
+      std::shared_ptr<Object> getObjectByUUID(uint32_t uuid) {
+        if (objectsMap.contains(uuid)) {
+          return objectsMap[uuid];
+        }
+        return nullptr;
+      }
   };
 }

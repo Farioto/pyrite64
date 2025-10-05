@@ -95,6 +95,10 @@ add_executable(p64editor src/main.cpp
         src/editor/pages/parts/logWindow.h
         src/editor/pages/parts/projectSettings.h
         src/editor/pages/parts/projectSettings.cpp
+        src/editor/pages/parts/sceneGraph.h
+        src/editor/pages/parts/sceneGraph.cpp
+        src/project/scene/object.h
+        src/project/scene/object.cpp
 )
 
 target_include_directories(p64editor PRIVATE

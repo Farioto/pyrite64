@@ -105,9 +105,12 @@ add_executable(p64editor src/main.cpp
         src/project/component/components.h
         src/project/component/components.cpp
         src/project/component/types/compCode.cpp
+        src/cli.cpp
+        src/cli.h
 )
 
 target_include_directories(p64editor PRIVATE
+    vendored
     vendored/imgui
     vendored/simdjson
     vendored/IconFontCppHeaders

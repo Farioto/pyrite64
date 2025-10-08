@@ -13,11 +13,6 @@
 
 namespace
 {
-  std::string getConfPath(int id) {
-    auto scenesPath = ctx.project->getPath() + "/data/scenes";
-    return scenesPath + "/" + std::to_string(id) + "/scene.json";
-  }
-
   constinit uint64_t nextUUID{1};
 }
 
@@ -34,15 +29,16 @@ std::string Project::SceneConf::serialize() const {
   return builder.toString();
 }
 
-Project::Scene::Scene(int id_)
+Project::Scene::Scene(int id_, const std::string &projectPath)
   : id{id_}
 {
   printf("Load scene %d\n", id);
+  scenePath = projectPath + "/data/scenes/" + std::to_string(id);
 
   root.id = 0;
   root.name = "Scene";
   root.uuid = Utils::Hash::sha256_64bit(root.name);
-  deserialize(Utils::FS::loadTextFile(getConfPath(id)));
+  deserialize(Utils::FS::loadTextFile(scenePath + "/scene.json"));
 }
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
@@ -78,8 +74,7 @@ void Project::Scene::removeAllObjects() {
 
 void Project::Scene::save()
 {
-  auto pathConfig = getConfPath(id);
-  Utils::FS::saveTextFile(pathConfig, serialize());
+  Utils::FS::saveTextFile(scenePath + "/scene.json", serialize());
 }
 
 std::string Project::Scene::serialize() {

@@ -72,7 +72,7 @@ void Project::AssetManager::reload() {
         .type = type,
       };
 
-      if (type == FileType::IMAGE) {
+      if (type == FileType::IMAGE && ctx.window) {
         entry.texture = new Renderer::Texture{ctx.gpu, path.string()};
       }
 

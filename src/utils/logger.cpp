@@ -10,6 +10,12 @@ namespace
 {
   constinit std::mutex mtx{};
   constinit std::string buff{};
+
+  constinit Utils::Logger::LogOutputFunc outputFunc = nullptr;
+}
+
+void Utils::Logger::setOutput(LogOutputFunc outFunc) {
+  outputFunc = outFunc;
 }
 
 void Utils::Logger::log(const std::string&msg, int level)
@@ -28,11 +34,21 @@ void Utils::Logger::log(const std::string&msg, int level)
       break;
   }
   buff += msg + "\n";
+
+  if (outputFunc) {
+    outputFunc(buff);
+    buff = "";
+  }
 }
 
 void Utils::Logger::logRaw(const std::string&msg, int level) {
   std::lock_guard lock{mtx};
   buff += msg;
+
+  if (outputFunc) {
+    outputFunc(buff);
+    buff = "";
+  }
 }
 
 void Utils::Logger::clear() {

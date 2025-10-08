@@ -69,5 +69,5 @@ void Project::SceneManager::loadScene(int id) {
     loadedScene->save();
     delete loadedScene;
   }
-  loadedScene = new Scene(id);
+  loadedScene = new Scene(id, project->getPath());
 }

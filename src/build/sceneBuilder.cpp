@@ -24,7 +24,7 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   std::string fileNameStr = fileNameScene + "s";
   std::string fileNameObj = fileNameScene + "o";
 
-  std::unique_ptr<Project::Scene> sc{new Project::Scene(scene.id)};
+  std::unique_ptr<Project::Scene> sc{new Project::Scene(scene.id, project.getPath())};
 
   auto fsDataPath = fs::absolute(fs::path{project.getPath()} / "filesystem" / "p64");
 

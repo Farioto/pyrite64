@@ -31,11 +31,12 @@ namespace Project
     private:
       int id{};
       Object root{};
+      std::string scenePath{};
 
     public:
       SceneConf conf{};
 
-      Scene(int id_);
+      Scene(int id_, const std::string &projectPath);
 
       void save();
       Object& getRootObject() { return root; }

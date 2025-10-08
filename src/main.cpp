@@ -10,6 +10,9 @@
 #include <SDL3/SDL.h>
 #include <future>
 
+#include <argparse/argparse.hpp>
+
+#include "cli.h"
 #include "build/projectBuilder.h"
 #include "editor/actions.h"
 #include "editor/imgui/theme.h"
@@ -43,9 +46,16 @@ void ImDrawCallback_ImplSDLGPU3_SetSamplerRepeat(const ImDrawList* parent_list, 
   state->SamplerCurrent   = texSamplerRepeat;//sampler;
 }
 
+void cli(argparse::ArgumentParser &prog);
+
 // Main code
 int main(int argc, char** argv)
 {
+  auto cliRes = CLI::run(argc, argv);
+  if (cliRes != CLI::Result::GUI) {
+    return (cliRes == CLI::Result::SUCCESS) ? 0 : -1;
+  }
+
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
   {
     printf("Error: SDL_Init(): %s\n", SDL_GetError());

@@ -12,6 +12,10 @@ void main()
   ivec2 uvNorm = ivec2(v_uv);
   // tex-size:
 
+  ivec2 texSize = textureSize(texSampler, 0);
+  // repeat
+  uvNorm = ivec2(mod(uvNorm.x, texSize.x), mod(uvNorm.y, texSize.y));
+
   FragColor = texelFetch(texSampler, uvNorm, 0) * v_color;
   //FragColor = v_color;
 }

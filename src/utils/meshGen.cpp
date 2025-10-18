@@ -34,10 +34,10 @@ void Utils::Mesh::generateCube(Renderer::Mesh&mesh, float size) {
     auto v3 = glm::ivec3((normal - tangent + bitangent) * size * 0.5f);
 
     uint16_t norm = 0;
-    mesh.vertices.push_back({v0, norm, 0xFFFF'FFFF, {0,0}});
-    mesh.vertices.push_back({v1, norm, 0xFFFF'FFFF, {32,0}});
-    mesh.vertices.push_back({v2, norm, 0xFFFF'FFFF, {32,32}});
-    mesh.vertices.push_back({v3, norm, 0xFFFF'FFFF, {0,32}});
+    mesh.vertices.push_back({v0, norm, {0xFF, 0xFF,0xFF,0xFF}, {0,0}});
+    mesh.vertices.push_back({v1, norm, {0xFF, 0xFF,0xFF,0xFF}, {32,0}});
+    mesh.vertices.push_back({v2, norm, {0xFF, 0xFF,0xFF,0xFF}, {32,32}});
+    mesh.vertices.push_back({v3, norm, {0xFF, 0xFF,0xFF,0xFF}, {0,32}});
 
     mesh.indices.push_back(startIdx + 2);
     mesh.indices.push_back(startIdx + 0);

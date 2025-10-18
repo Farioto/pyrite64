@@ -22,9 +22,11 @@ void main()
 {
   mat4 matMVP = projMat * cameraMat * modelMat;
   vec3 posNorm = vec3(inPosition) / 32768.0;
-  posNorm /= 32768.0;
+  //posNorm /= 32768.0;
+  posNorm *= 64;
+
   gl_Position = matMVP * vec4(posNorm, 1.0);
 
   v_color = inColor;// * vec4(test, 1.0f);
-  v_uv = inUV;
+  v_uv = vec2(inUV) / float(1 << 5);
 }

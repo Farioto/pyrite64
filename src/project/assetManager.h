@@ -57,7 +57,7 @@ namespace Project
         FileType type{};
         std::shared_ptr<Renderer::Texture> texture{nullptr};
         T3DMData t3dmData{};
-        Renderer::Mesh mesh3D{};
+        std::shared_ptr<Renderer::Mesh> mesh3D{};
         AssetConf conf{};
         Utils::CPP::Struct params{};
       };
@@ -82,6 +82,15 @@ namespace Project
       }
       [[nodiscard]] const std::vector<Entry>& getScriptEntries() const {
         return entriesScript;
+      }
+
+      Entry* getByName(const std::string &name) {
+        for (auto &entry : entries) {
+          if (entry.name == name) {
+            return &entry;
+          }
+        }
+        return nullptr;
       }
 
       Entry* getEntryByUUID(uint64_t uuid) {

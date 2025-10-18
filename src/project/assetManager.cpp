@@ -83,7 +83,10 @@ void Project::AssetManager::reload() {
       if (type == FileType::MODEL_3D) {
         try {
           entry.t3dmData = parseGLTF(path.string().c_str(), 64.0f);
-          Utils::Mesh::t3dmToMesh(entry.t3dmData, entry.mesh3D);
+          if (!entry.t3dmData.models.empty()) {
+            entry.mesh3D = std::make_shared<Renderer::Mesh>();
+            Utils::Mesh::t3dmToMesh(entry.t3dmData, *entry.mesh3D);
+          }
         } catch (...) {
           Utils::Logger::log("Failed to load 3D model asset: " + path.string());
         }

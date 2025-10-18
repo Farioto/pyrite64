@@ -53,7 +53,7 @@ Renderer::Scene::Scene()
   // Position
   vertexAttributes[idx].buffer_slot = 0; // fetch data from the buffer at slot 0
   vertexAttributes[idx].location = idx; // layout (location = 0) in shader
-  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_HALF4;
+  vertexAttributes[idx].format = SDL_GPU_VERTEXELEMENTFORMAT_SHORT4;
   vertexAttributes[idx].offset = offsetof(Renderer::Vertex, pos);
   ++idx;
 /*

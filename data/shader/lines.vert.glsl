@@ -13,6 +13,7 @@ layout(std140, set = 1, binding = 0) uniform UniformGlobal {
 
 layout(std140, set = 1, binding = 1) uniform UniformObject {
     mat4 modelMat;
+    uint objectID;
 };
 
 void main()

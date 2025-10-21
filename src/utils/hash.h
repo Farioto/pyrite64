@@ -18,4 +18,8 @@ namespace Utils::Hash
     }
     return res;
   }
+
+  inline uint32_t sha256_32bit(const std::string& str) {
+    return static_cast<uint32_t>(sha256_64bit(str) & 0xFFFFFFFF);
+  }
 }

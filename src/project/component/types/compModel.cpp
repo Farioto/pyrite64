@@ -110,8 +110,10 @@ namespace Project::Component::Model
       data.obj3DLoaded = true;
     }
 
+    data.obj3D.setObjectID(obj.uuid);
     data.obj3D.setPos(obj.pos);
     data.obj3D.draw(pass, cmdBuff);
+
 
     bool isSelected = ctx.selObjectUUID == obj.uuid;
     //if (ctx.selObjectUUID == obj.uuid)

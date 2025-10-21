@@ -27,6 +27,7 @@ Renderer::Scene::Scene()
     .shader = *shaderN64,
     .prim = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
     .useDepth = true,
+    .drawsObjID = true,
     .vertPitch = sizeof(Vertex),
     .vertLayout = {
       {SDL_GPU_VERTEXELEMENTFORMAT_SHORT4     , offsetof(Renderer::Vertex, pos)},
@@ -39,6 +40,7 @@ Renderer::Scene::Scene()
     .shader = *shaderLines,
     .prim = SDL_GPU_PRIMITIVETYPE_LINELIST,
     .useDepth = true,
+    .drawsObjID = false,
     .vertPitch = sizeof(LineVertex),
     .vertLayout = {
       {SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3     , offsetof(Renderer::LineVertex, pos)},

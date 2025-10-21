@@ -24,7 +24,9 @@ namespace Editor
       bool isMouseHover{false};
       bool isMouseDown{false};
       bool needsSample{false};
+      uint32_t pickedObjID{0};
 
+      float vpOffsetY{};
       glm::vec2 mousePos{};
       glm::vec2 mousePosStart{};
       glm::vec2 mousePosClick{};

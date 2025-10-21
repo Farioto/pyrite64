@@ -43,11 +43,12 @@ Renderer::Pipeline::Pipeline(const Info &info) {
   pipelineInfo.vertex_input_state.num_vertex_attributes = vertexAttributes.size();
   pipelineInfo.vertex_input_state.vertex_attributes = vertexAttributes.data();
 
-  SDL_GPUColorTargetDescription colorTargetDescriptions[1] {
-    {.format = SDL_GetGPUSwapchainTextureFormat(ctx.gpu, ctx.window)}
+  SDL_GPUColorTargetDescription colorTargetDescriptions[2]{
+    {.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM},
+    {.format = SDL_GPU_TEXTUREFORMAT_R32_UINT},
   };
 
-  pipelineInfo.target_info.num_color_targets = 1;
+  pipelineInfo.target_info.num_color_targets = info.drawsObjID ? 2 : 1;
   pipelineInfo.target_info.color_target_descriptions = colorTargetDescriptions;
 
   pipeline = SDL_CreateGPUGraphicsPipeline(ctx.gpu, &pipelineInfo);

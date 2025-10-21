@@ -67,7 +67,7 @@ void Editor::Viewport3D::onRenderPass(SDL_GPUCommandBuffer* cmdBuff, Renderer::S
   meshLines->indices.clear();
 
   SDL_GPURenderPass* renderPass3D = SDL_BeginGPURenderPass(
-    cmdBuff, &fb.getTargetInfo(), 1, &fb.getDepthTargetInfo()
+    cmdBuff, fb.getTargetInfo(), fb.getTargetInfoCount(), &fb.getDepthTargetInfo()
   );
   renderScene.getPipeline("n64").bind(renderPass3D);
 
@@ -102,8 +102,9 @@ void Editor::Viewport3D::onCopyPass(SDL_GPUCommandBuffer* cmdBuff, SDL_GPUCopyPa
 }
 
 void Editor::Viewport3D::onPostRender(Renderer::Scene &renderScene) {
-  if (needsSample) {
-    fb.readColor(mousePosClick.x, mousePosClick.y);
+  if (needsSample)
+  {
+    pickedObjID = fb.readObjectID(mousePosClick.x, mousePosClick.y);
     needsSample = false;
   }
 }
@@ -111,6 +112,11 @@ void Editor::Viewport3D::onPostRender(Renderer::Scene &renderScene) {
 void Editor::Viewport3D::draw() {
   camera.update();
   fb.setClearColor(ctx.project->getScenes().getLoadedScene()->conf.clearColor);
+
+  if (pickedObjID) {
+    ctx.selObjectUUID = pickedObjID;
+    pickedObjID = 0;
+  }
 
   auto currSize = ImGui::GetContentRegionAvail();
   auto currPos = ImGui::GetWindowPos();
@@ -130,7 +136,7 @@ void Editor::Viewport3D::draw() {
   ImVec2 screenPos = ImGui::GetCursorScreenPos();
   mousePos = {ImGui::GetMousePos().x, ImGui::GetMousePos().y};
   mousePos.x -= screenPos.x;
-  mousePos.y -= screenPos.y - 20;
+  mousePos.y -= vpOffsetY;
 
   float moveSpeed = 2.5f * deltaTime;
 
@@ -142,23 +148,14 @@ void Editor::Viewport3D::draw() {
     mousePosClick = mousePos;
   }
 
-  if (ImGui::GetIO().KeysData[ImGuiKey_W-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(0,0,-moveSpeed);
-  }
-  if (ImGui::GetIO().KeysData[ImGuiKey_S-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(0,0,moveSpeed);
-  }
-  if (ImGui::GetIO().KeysData[ImGuiKey_A-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(-moveSpeed,0,0);
-  }
-  if (ImGui::GetIO().KeysData[ImGuiKey_D-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(moveSpeed,0,0);
-  }
-  if (ImGui::GetIO().KeysData[ImGuiKey_Q-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(0,-moveSpeed,0);
-  }
-  if (ImGui::GetIO().KeysData[ImGuiKey_E-ImGuiKey_NamedKey_BEGIN].Down) {
-    camera.pos += camera.rot * glm::vec3(0,moveSpeed,0);
+  if (newMouseDown) {
+    if (ImGui::IsKeyDown(ImGuiKey_W))camera.pos += camera.rot * glm::vec3(0,0,-moveSpeed);
+    if (ImGui::IsKeyDown(ImGuiKey_S))camera.pos += camera.rot * glm::vec3(0,0,moveSpeed);
+    if (ImGui::IsKeyDown(ImGuiKey_A))camera.pos += camera.rot * glm::vec3(-moveSpeed,0,0);
+    if (ImGui::IsKeyDown(ImGuiKey_D))camera.pos += camera.rot * glm::vec3(moveSpeed,0,0);
+
+    if (ImGui::IsKeyDown(ImGuiKey_Q))camera.pos += camera.rot * glm::vec3(0,-moveSpeed,0);
+    if (ImGui::IsKeyDown(ImGuiKey_E))camera.pos += camera.rot * glm::vec3(0,moveSpeed,0);
   }
 
   if (isMouseHover && !ImViewGuizmo::IsOver())
@@ -168,7 +165,7 @@ void Editor::Viewport3D::draw() {
     }
     isMouseDown = newMouseDown;
   }
-  ImGui::Text("Viewport: %f | %f | %d", mousePos.x, mousePos.y, isShiftDown);
+  ImGui::Text("Viewport: %f | %f | %08X", mousePos.x, mousePos.y, pickedObjID);
 
   auto dragDelta = mousePos - mousePosStart;
   if (isMouseDown) {
@@ -187,8 +184,10 @@ void Editor::Viewport3D::draw() {
   if (!newMouseDown)isMouseDown = false;
 
   currPos = ImGui::GetCursorScreenPos();
+  vpOffsetY = currPos.y;
 
   ImGui::Image(ImTextureID(fb.getTexture()), {currSize.x, currSize.y});
+
   isMouseHover = ImGui::IsItemHovered();
 
   ImDrawList* draw_list = ImGui::GetWindowDrawList();

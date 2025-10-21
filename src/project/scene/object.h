@@ -23,7 +23,7 @@ namespace Project
       Object* parent{nullptr};
 
       std::string name{};
-      uint64_t uuid{0};
+      uint32_t uuid{0};
       uint16_t id{};
 
       glm::vec3 pos{};

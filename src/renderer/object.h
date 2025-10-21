@@ -20,6 +20,9 @@ namespace Renderer
       UniformsObject uniform{};
 
     public:
+      void setObjectID(uint32_t id) {
+        uniform.objectID = id;
+      }
       void setMesh(const std::shared_ptr<Mesh>& m) { mesh = m; }
 
       void setPos(const glm::vec3& p) { pos = p; transformDirty = true; }

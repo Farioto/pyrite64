@@ -13,13 +13,21 @@ Renderer::Framebuffer::Framebuffer()
   texInfo.num_levels = 1;
   texInfo.sample_count = SDL_GPU_SAMPLECOUNT_1;
 
-  targetInfo.texture = nullptr;
-  targetInfo.clear_color = {0, 0, 0, 1};
-  targetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
-  targetInfo.store_op = SDL_GPU_STOREOP_STORE;
-  targetInfo.mip_level = 0;
-  targetInfo.layer_or_depth_plane = 0;
-  targetInfo.cycle = false;
+  targetInfo[0].texture = nullptr;
+  targetInfo[0].clear_color = {0, 0, 0, 1};
+  targetInfo[0].load_op = SDL_GPU_LOADOP_CLEAR;
+  targetInfo[0].store_op = SDL_GPU_STOREOP_STORE;
+  targetInfo[0].mip_level = 0;
+  targetInfo[0].layer_or_depth_plane = 0;
+  targetInfo[0].cycle = false;
+
+  targetInfo[1].texture = nullptr;
+  targetInfo[1].clear_color = {0, 0, 0, 0};
+  targetInfo[1].load_op = SDL_GPU_LOADOP_CLEAR;
+  targetInfo[1].store_op = SDL_GPU_STOREOP_STORE;
+  targetInfo[1].mip_level = 0;
+  targetInfo[1].layer_or_depth_plane = 0;
+  targetInfo[1].cycle = false;
 
   depthTargetInfo.texture = nullptr;
   depthTargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
@@ -34,9 +42,9 @@ Renderer::Framebuffer::~Framebuffer() {
   if (transBufferRead) {
     SDL_ReleaseGPUTransferBuffer(ctx.gpu, transBufferRead);
   }
-  if(gpuTex) {
-    SDL_ReleaseGPUTexture(ctx.gpu, gpuTex);
-  }
+  if(gpuTex)SDL_ReleaseGPUTexture(ctx.gpu, gpuTex);
+  if(gpuTexObj)SDL_ReleaseGPUTexture(ctx.gpu, gpuTexObj);
+  if(gpuTexDepth)SDL_ReleaseGPUTexture(ctx.gpu, gpuTexDepth);
 }
 
 void Renderer::Framebuffer::resize(uint32_t width, uint32_t height)
@@ -45,9 +53,9 @@ void Renderer::Framebuffer::resize(uint32_t width, uint32_t height)
   texInfo.width = width;
   texInfo.height = height;
 
-  if(gpuTex) {
-    SDL_ReleaseGPUTexture(ctx.gpu, gpuTex);
-  }
+  if(gpuTex)SDL_ReleaseGPUTexture(ctx.gpu, gpuTex);
+  if(gpuTexObj)SDL_ReleaseGPUTexture(ctx.gpu, gpuTexObj);
+  if(gpuTexDepth)SDL_ReleaseGPUTexture(ctx.gpu, gpuTexDepth);
 
   texInfo.type = SDL_GPU_TEXTURETYPE_2D;
   texInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
@@ -55,20 +63,21 @@ void Renderer::Framebuffer::resize(uint32_t width, uint32_t height)
   gpuTex = SDL_CreateGPUTexture(ctx.gpu, &texInfo);
 
   texInfo.type = SDL_GPU_TEXTURETYPE_2D;
+  texInfo.format = SDL_GPU_TEXTUREFORMAT_R32_UINT;
+  texInfo.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET;
+  gpuTexObj = SDL_CreateGPUTexture(ctx.gpu, &texInfo);
+
+  texInfo.type = SDL_GPU_TEXTURETYPE_2D;
   texInfo.format = SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT;
   texInfo.usage = SDL_GPU_TEXTUREUSAGE_DEPTH_STENCIL_TARGET;
   gpuTexDepth = SDL_CreateGPUTexture(ctx.gpu, &texInfo);
 
-  targetInfo.texture = gpuTex;
+  targetInfo[0].texture = gpuTex;
+  targetInfo[1].texture = gpuTexObj;
   depthTargetInfo.texture = gpuTexDepth;
 }
 
-glm::u8vec4 Renderer::Framebuffer::readColor(uint32_t x, uint32_t y)
-{
-  if (x >= texInfo.width || y >= texInfo.height) {
-    return {0,0,0,0};
-  }
-
+void* Renderer::Framebuffer::startGenericRead(uint32_t x, uint32_t y) {
   SDL_GPUCommandBuffer* cmdBuff = SDL_AcquireGPUCommandBuffer(ctx.gpu);
   uint32_t w = 1;
   uint32_t h = 1;
@@ -82,9 +91,8 @@ glm::u8vec4 Renderer::Framebuffer::readColor(uint32_t x, uint32_t y)
 
   SDL_GPUCopyPass *pass = SDL_BeginGPUCopyPass(cmdBuff);
 
-  glm::u8vec4 color{0,0,0,0};
   SDL_GPUTextureRegion src{};
-  src.texture = getTexture();
+  src.texture = gpuTexObj;
   src.x = x;
   src.y = y;
   src.w = w;
@@ -105,15 +113,34 @@ glm::u8vec4 Renderer::Framebuffer::readColor(uint32_t x, uint32_t y)
   SDL_ReleaseGPUFence(ctx.gpu, fence);
   //auto buff = SDL_AcquireGPUCommandBuffer(ctx.gpu);
 
-  auto *mapped_tbuf = (uint8_t*)SDL_MapGPUTransferBuffer(ctx.gpu, transBufferRead, false);
-  glm::u8vec4 res{};
-  res.r = mapped_tbuf[0];
-  res.g = mapped_tbuf[1];
-  res.b = mapped_tbuf[2];
-  res.a = mapped_tbuf[3];
-  printf("Pixel: %d %d %d %d\n", mapped_tbuf[0], mapped_tbuf[1], mapped_tbuf[2], mapped_tbuf[3]);
+  return SDL_MapGPUTransferBuffer(ctx.gpu, transBufferRead, false);
+}
 
+void Renderer::Framebuffer::endGenericRead() {
   SDL_UnmapGPUTransferBuffer(ctx.gpu, transBufferRead);
+}
+
+glm::u8vec4 Renderer::Framebuffer::readColor(uint32_t x, uint32_t y)
+{
+  if (x >= texInfo.width || y >= texInfo.height) {
+    return {0,0,0,0};
+  }
+
+  auto data = (uint8_t*)startGenericRead(x,y);
+  glm::u8vec4 res{data[0], data[1], data[2], data[3]};
+  //printf("Pixel: %02X %02X %02X %02X\n", res[0], res[1], res[2], res[3]);
+  endGenericRead();
+  return res;
+}
+
+uint32_t Renderer::Framebuffer::readObjectID(uint32_t x, uint32_t y) {
+  if (x >= texInfo.width || y >= texInfo.height) {
+    return 0;
+  }
+
+  auto res = *static_cast<uint32_t*>(startGenericRead(x, y));
+  //printf("ID: %08X\n", res);
+  endGenericRead();
   return res;
 }
 

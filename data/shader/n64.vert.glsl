@@ -7,6 +7,7 @@ layout (location = 2) in ivec2 inUV;
 
 layout (location = 0) out vec4 v_color;
 layout (location = 1) out vec2 v_uv;
+layout (location = 2) out flat uint v_objectID;
 
 // set=3 in fragment shader
 layout(std140, set = 1, binding = 0) uniform UniformGlobal {
@@ -16,6 +17,7 @@ layout(std140, set = 1, binding = 0) uniform UniformGlobal {
 
 layout(std140, set = 1, binding = 1) uniform UniformObject {
     mat4 modelMat;
+    uint objectID;
 };
 
 void main()
@@ -29,4 +31,5 @@ void main()
 
   v_color = inColor;// * vec4(test, 1.0f);
   v_uv = vec2(inUV) / float(1 << 5);
+  v_objectID = objectID;
 }

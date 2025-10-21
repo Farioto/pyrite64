@@ -16,5 +16,6 @@ namespace Renderer
   struct UniformsObject
   {
     glm::mat4 modelMat{};
+    uint32_t objectID{};
   };
 }

@@ -25,10 +25,11 @@ namespace Renderer
       struct Info
       {
         const Renderer::Shader &shader;
-        SDL_GPUPrimitiveType prim;
-        bool useDepth;
-        uint32_t vertPitch;
-        std::vector<InfoVertDef> vertLayout;
+        SDL_GPUPrimitiveType prim{};
+        bool useDepth{};
+        bool drawsObjID{};
+        uint32_t vertPitch{};
+        std::vector<InfoVertDef> vertLayout{};
       };
 
       explicit Pipeline(const Info &info);

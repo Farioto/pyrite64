@@ -19,6 +19,14 @@
 namespace
 {
   constinit uint32_t nextPassId{0};
+
+  constexpr ImGuizmo::OPERATION GIZMO_OPS[3] {
+    ImGuizmo::OPERATION::TRANSLATE,
+    ImGuizmo::OPERATION::ROTATE,
+    ImGuizmo::OPERATION::SCALE
+  };
+
+  constinit int gizmoOp{0};
 }
 
 Editor::Viewport3D::Viewport3D()
@@ -157,6 +165,10 @@ void Editor::Viewport3D::draw() {
 
     if (ImGui::IsKeyDown(ImGuiKey_Q))camera.pos += camera.rot * glm::vec3(0,-moveSpeed,0);
     if (ImGui::IsKeyDown(ImGuiKey_E))camera.pos += camera.rot * glm::vec3(0,moveSpeed,0);
+  } else {
+    if (ImGui::IsKeyDown(ImGuiKey_G))gizmoOp = 0;
+    if (ImGui::IsKeyDown(ImGuiKey_R))gizmoOp = 1;
+    if (ImGui::IsKeyDown(ImGuiKey_S))gizmoOp = 2;
   }
 
   if (isMouseHover && !ImViewGuizmo::IsOver())
@@ -204,12 +216,20 @@ void Editor::Viewport3D::draw() {
 
     gizmoMat = glm::recompose(obj->scale, obj->rot, obj->pos, skew, persp);
 
+    glm::vec3 snap(0.25f);
+    if (gizmoOp == 1) {
+      snap = glm::vec3(90.0f / 4.0f);
+    }
+    bool isSnap = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl);
+
     ImGuizmo::Manipulate(
       glm::value_ptr(uniGlobal.cameraMat),
       glm::value_ptr(uniGlobal.projMat),
-      ImGuizmo::OPERATION::TRANSLATE,
+      GIZMO_OPS[gizmoOp],
       ImGuizmo::MODE::WORLD,
-      glm::value_ptr(gizmoMat)
+      glm::value_ptr(gizmoMat),
+      nullptr,
+      isSnap ? glm::value_ptr(snap) : nullptr
     );
 
     /*ImGuizmo::DecomposeMatrixToComponents(

@@ -2,9 +2,9 @@
 * @copyright 2025 - Max Bebök
 * @license MIT
 */
-#include "gltf.h"
+#include "n64Mesh.h"
 
-void Utils::Mesh::t3dmToMesh(const T3DMData &t3dmData, Renderer::Mesh &mesh)
+void Renderer::N64Mesh::fromT3DM(const T3DMData &t3dmData)
 {
   mesh.vertices.clear();
   mesh.indices.clear();
@@ -12,6 +12,7 @@ void Utils::Mesh::t3dmToMesh(const T3DMData &t3dmData, Renderer::Mesh &mesh)
   uint16_t idx = 0;
   for (auto &model : t3dmData.models) {
     printf("Tex: %s\n", model.material.texA.texPath.c_str());
+    //model.material.colorCombiner
     for (auto &tri : model.triangles) {
 
       for (auto &vert : tri.vert) {
@@ -40,4 +41,13 @@ void Utils::Mesh::t3dmToMesh(const T3DMData &t3dmData, Renderer::Mesh &mesh)
       mesh.indices.push_back(idx++);
     }
   }
+}
+
+void Renderer::N64Mesh::recreate(Renderer::Scene &scene) {
+  mesh.recreate(scene);
+}
+
+void Renderer::N64Mesh::draw(SDL_GPURenderPass* pass, UniformsObject &uniforms)
+{
+  mesh.draw(pass);
 }

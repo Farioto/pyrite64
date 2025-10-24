@@ -28,7 +28,7 @@ namespace Renderer
 
       void recreate(Renderer::Scene &scene, bool clearData = true);
 
-      void draw(SDL_GPURenderPass* pass);
+      void draw(SDL_GPURenderPass* pass, uint32_t indexOffset = 0, uint32_t indexCount = 0);
 
       const Utils::AABB& getAABB() const { return aabb; }
 

@@ -84,9 +84,11 @@ void Editor::Scene::draw()
     ImGui::DockBuilderFinish(dockSpaceID);
   }
 
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));
   ImGui::Begin("3D-Viewport");
     viewport3d.draw();
   ImGui::End();
+  ImGui::PopStyleVar(1);
 
   ImGui::Begin("Asset");
     assetInspector.draw();

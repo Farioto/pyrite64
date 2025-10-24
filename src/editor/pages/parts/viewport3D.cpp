@@ -27,6 +27,79 @@ namespace
   };
 
   constinit int gizmoOp{0};
+
+  // A toggleable "connected" button (like in toolbars)
+bool ConnectedToggleButton(const char* text, bool active, bool first, bool last, ImVec2 size = ImVec2(20, 20))
+{
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+    // Remove spacing so buttons touch
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    ImGui::PushID(text); // ensure unique id for InvisibleButton
+
+    // Create an invisible button to get interaction & layout
+    bool pressed = ImGui::InvisibleButton("##invis", size);
+    ImGui::PopID();
+
+    // Get item rect
+    ImVec2 a = ImGui::GetItemRectMin();
+    ImVec2 b = ImGui::GetItemRectMax();
+
+    // Choose background color based on active / hovered / held
+    ImU32 col;
+    if (active) {
+        col = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+    } else if (ImGui::IsItemActive()) {
+        col = ImGui::GetColorU32(ImGuiCol_ButtonActive); // pressed
+    } else if (ImGui::IsItemHovered()) {
+        col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+    } else {
+        col = ImGui::GetColorU32(ImGuiCol_Button);
+    }
+
+    // Corner rounding amount
+    float rounding = style.FrameRounding;
+    if (rounding <= 0.0f) rounding = 0.0f;
+
+    // Decide which corners to round (ImDrawFlags_RoundCornersXXX)
+    ImDrawFlags round_flags = ImDrawFlags_RoundCornersNone;
+    if (first && last) {
+        // single button -> round all corners
+        round_flags = ImDrawFlags_RoundCornersAll;
+    } else if (first) {
+        round_flags = (ImDrawFlags)(ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersBottomLeft);
+    } else if (last) {
+        round_flags = (ImDrawFlags)(ImDrawFlags_RoundCornersTopRight | ImDrawFlags_RoundCornersBottomRight);
+    } else {
+        round_flags = ImDrawFlags_RoundCornersNone;
+    }
+
+    // Draw filled background with chosen rounded corners
+    draw_list->AddRectFilled(a, b, col, rounding, (int)round_flags);
+
+    // Optional border
+    if (style.FrameBorderSize > 0.0f) {
+        ImU32 border_col = ImGui::GetColorU32(ImGuiCol_Border);
+        draw_list->AddRect(a, b, border_col, rounding, (int)round_flags, style.FrameBorderSize);
+    }
+
+    // Draw the label text centered inside the rect
+    ImVec2 text_size = ImGui::CalcTextSize(text);
+    ImVec2 text_pos = ImVec2( (a.x + b.x - text_size.x) * 0.5f, (a.y + b.y - text_size.y) * 0.5f );
+
+    // respect style.FramePadding vertically/horizontally if size.x == 0 (auto width)
+    // but invisible button size could be 0 -> then rect height is determined by style.FramePadding
+    draw_list->AddText(text_pos, ImGui::GetColorU32(ImGuiCol_Text), text);
+
+    // Restore spacing style
+    ImGui::PopStyleVar();
+
+    // If not last, put next button on same line with zero spacing
+    if (!last) ImGui::SameLine(0, 0);
+
+    return pressed;
+}
 }
 
 Editor::Viewport3D::Viewport3D()
@@ -110,7 +183,8 @@ void Editor::Viewport3D::onPostRender(Renderer::Scene &renderScene) {
   }
 }
 
-void Editor::Viewport3D::draw() {
+void Editor::Viewport3D::draw()
+{
   camera.update();
   auto scene = ctx.project->getScenes().getLoadedScene();
   fb.setClearColor(scene->conf.clearColor);
@@ -120,11 +194,13 @@ void Editor::Viewport3D::draw() {
   }
   auto obj = scene->getObjectByUUID(ctx.selObjectUUID);
 
+  constexpr float BAR_HEIGHT = 26.0f;
+
   auto currSize = ImGui::GetContentRegionAvail();
   auto currPos = ImGui::GetWindowPos();
   if (currSize.x < 64)currSize.x = 64;
   if (currSize.y < 64)currSize.y = 64;
-  currSize.y -= 24;
+  currSize.y -= BAR_HEIGHT;
 
   fb.resize((int)currSize.x, (int)currSize.y);
   camera.screenSize = {currSize.x, currSize.y};
@@ -132,7 +208,7 @@ void Editor::Viewport3D::draw() {
   auto &io = ImGui::GetIO();
   float deltaTime = io.DeltaTime;
 
-  ImVec2 gizPos{currPos.x + currSize.x - 40, currPos.y + 104};
+  ImVec2 gizPos{currPos.x + currSize.x - 50, currPos.y + 104};
 
   // mouse pos
   ImVec2 screenPos = ImGui::GetCursorScreenPos();
@@ -178,7 +254,24 @@ void Editor::Viewport3D::draw() {
     }
     isMouseDown = newMouseDown;
   }
-  ImGui::Text("Viewport: %f | %f | %08X", mousePos.x, mousePos.y, ctx.selObjectUUID);
+
+  currPos = ImGui::GetCursorPos();
+
+  //ImGui::Text("Viewport: %f | %f | %08X", mousePos.x, mousePos.y, ctx.selObjectUUID);
+
+  constexpr char* GIZMO_LABELS[3] = {ICON_FA_ARROWS, ICON_FA_CIRCLE_O_NOTCH, ICON_FA_EXPAND};
+  for (int i=0; i<3; ++i) {
+    if (ConnectedToggleButton(
+      GIZMO_LABELS[i],
+      gizmoOp == i,
+      i == 0, i == 2,
+      ImVec2(32,24)
+    )) {
+      gizmoOp = i;
+    }
+  }
+
+  ImGui::SetCursorPosY(currPos.y + BAR_HEIGHT);
 
   auto dragDelta = mousePos - mousePosStart;
   if (isMouseDown) {

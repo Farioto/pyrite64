@@ -16,6 +16,10 @@ namespace Renderer
   struct UniformsObject
   {
     glm::mat4 modelMat{};
+    glm::u8vec4 cc0Color{};
+    glm::u8vec4 cc0Alpha{};
+    glm::u8vec4 cc1Color{};
+    glm::u8vec4 cc1Alpha{};
     uint32_t objectID{};
   };
 }

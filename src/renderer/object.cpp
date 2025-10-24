@@ -10,7 +10,7 @@
 extern SDL_GPUSampler *texSamplerRepeat;
 
 void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBuff) {
-  if (!mesh) return;
+  if (!mesh && !n64Mesh) return;
 
   if (transformDirty) {
     auto m = glm::identity<glm::mat4>();
@@ -33,5 +33,6 @@ void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBu
   };
   SDL_BindGPUFragmentSamplers(pass, 0, &bind, 1);
 
-  mesh->draw(pass);
+  if(mesh)mesh->draw(pass);
+  if(n64Mesh)n64Mesh->draw(pass, uniform);
 }

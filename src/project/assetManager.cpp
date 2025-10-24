@@ -16,7 +16,6 @@
 #include "../utils/logger.h"
 #include "../utils/meshGen.h"
 #include "../utils/string.h"
-#include "../utils/mesh/gltf.h"
 #include "tiny3d/tools/gltf_importer/src/parser.h"
 
 namespace fs = std::filesystem;
@@ -114,8 +113,8 @@ void Project::AssetManager::reload() {
         try {
           entry.t3dmData = parseGLTF(path.string().c_str(), 64.0f);
           if (!entry.t3dmData.models.empty()) {
-            entry.mesh3D = std::make_shared<Renderer::Mesh>();
-            Utils::Mesh::t3dmToMesh(entry.t3dmData, *entry.mesh3D);
+            entry.mesh3D = std::make_shared<Renderer::N64Mesh>();
+            entry.mesh3D->fromT3DM(entry.t3dmData);
           }
         } catch (...) {
           Utils::Logger::log("Failed to load 3D model asset: " + path.string());

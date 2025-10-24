@@ -43,8 +43,12 @@ void Renderer::Mesh::recreate(Renderer::Scene &scene, bool clearData) {
   });
 }
 
-void Renderer::Mesh::draw(SDL_GPURenderPass* pass) {
+void Renderer::Mesh::draw(SDL_GPURenderPass* pass, uint32_t indexOffset, uint32_t indexCount) {
   if (!dataReady || !vertBuff)return;
+
+  if (indexCount == 0) {
+    indexCount = vertBuff->getIndexCount() - indexOffset;
+  }
 
   SDL_GPUBufferBinding bufferBindings[2];
   vertBuff->addBindings(bufferBindings);
@@ -53,7 +57,7 @@ void Renderer::Mesh::draw(SDL_GPURenderPass* pass) {
   SDL_BindGPUIndexBuffer(pass, &bufferBindings[1], SDL_GPU_INDEXELEMENTSIZE_16BIT);
 
   //SDL_DrawGPUPrimitives(pass, vertices.size(), 1, 0, 0); // unindexed
-  SDL_DrawGPUIndexedPrimitives(pass, vertBuff->getIndexCount(), 1, 0, 0, 0);
+  SDL_DrawGPUIndexedPrimitives(pass, indexCount, 1, indexOffset, 0, 0);
 }
 
 Renderer::Mesh::Mesh() {

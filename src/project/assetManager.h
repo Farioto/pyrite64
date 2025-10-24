@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../renderer/n64Mesh.h"
 #include "../renderer/object.h"
 #include "../utils/codeParser.h"
 #include "../renderer/texture.h"
@@ -61,7 +62,7 @@ namespace Project
         FileType type{};
         std::shared_ptr<Renderer::Texture> texture{nullptr};
         T3DMData t3dmData{};
-        std::shared_ptr<Renderer::Mesh> mesh3D{};
+        std::shared_ptr<Renderer::N64Mesh> mesh3D{};
         AssetConf conf{};
         Utils::CPP::Struct params{};
       };

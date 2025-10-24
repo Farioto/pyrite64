@@ -145,13 +145,13 @@ add_executable(p64editor src/main.cpp
         src/renderer/object.cpp
         src/utils/meshGen.h
         src/utils/meshGen.cpp
-        src/utils/mesh/gltf.h
-        src/utils/mesh/gltf.cpp
         src/project/component/types/compModel.cpp
         src/renderer/pipeline.h
         src/renderer/pipeline.cpp
         src/utils/aabb.h
         src/utils/container.h
+        src/renderer/n64Mesh.h
+        src/renderer/n64Mesh.cpp
 )
 
 target_include_directories(p64editor PRIVATE

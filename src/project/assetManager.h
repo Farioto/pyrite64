@@ -72,12 +72,14 @@ namespace Project
       std::array<std::vector<Entry>, static_cast<size_t>(FileType::_SIZE)> entries{};
 
       std::string defaultScript{};
+      Renderer::Texture fallbackTex;
 
     public:
       std::unordered_map<uint64_t, int> entriesMap{};
       //std::unordered_map<uint64_t, int> entriesMapScript{};
 
       AssetManager(Project *pr);
+      ~AssetManager();
 
       void reload();
 
@@ -99,6 +101,17 @@ namespace Project
         return nullptr;
       }
 
+      Entry* getByPath(const std::string &path) {
+        for (auto &typed : entries) {
+          for (auto &entry : typed) {
+            if (entry.path == path) {
+              return &entry;
+            }
+          }
+        }
+        return nullptr;
+      }
+
       Entry* getEntryByUUID(uint64_t uuid) {
         for (auto &typed : entries) {
           for (auto &entry : typed) {
@@ -108,6 +121,10 @@ namespace Project
           }
         }
         return nullptr;
+      }
+
+      const Renderer::Texture &getFallbackTexture() {
+        return fallbackTex;
       }
 
       void save();

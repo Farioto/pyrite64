@@ -7,8 +7,6 @@
 
 #include "glm/ext/matrix_transform.hpp"
 
-extern SDL_GPUSampler *texSamplerRepeat;
-
 void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBuff) {
   if (!mesh && !n64Mesh) return;
 
@@ -21,17 +19,6 @@ void Renderer::Object::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer* cmdBu
   }
 
   SDL_PushGPUVertexUniformData(cmdBuff, 1, &uniform, sizeof(uniform));
-
-  SDL_GPUTexture *tex{nullptr};
-
-  auto meshAsset = ctx.project->getAssets().getByName("stone01.i8.png");
-  tex = meshAsset->texture->getGPUTex();
-
-  SDL_GPUTextureSamplerBinding bind{
-    .texture = tex,
-    .sampler = texSamplerRepeat
-  };
-  SDL_BindGPUFragmentSamplers(pass, 0, &bind, 1);
 
   if(mesh)mesh->draw(pass);
   if(n64Mesh)n64Mesh->draw(pass, uniform);

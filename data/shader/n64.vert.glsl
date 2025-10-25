@@ -38,7 +38,7 @@ void main()
   mat4 matMVP = projMat * cameraMat * modelMat;
   vec3 posNorm = vec3(inPosition) / 32768.0;
   //posNorm /= 32768.0;
-  posNorm *= 64;
+  posNorm *= 256;
 
   gl_Position = matMVP * vec4(posNorm, 1.0);
 

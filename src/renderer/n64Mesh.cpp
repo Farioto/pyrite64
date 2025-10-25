@@ -3,16 +3,24 @@
 * @license MIT
 */
 #include "n64Mesh.h"
+#include "../context.h"
+#include "../project/assetManager.h"
+#include <filesystem>
 
-void Renderer::N64Mesh::fromT3DM(const T3DMData &t3dmData)
+namespace fs = std::filesystem;
+
+extern SDL_GPUSampler *texSamplerRepeat; // @TODO make sampler manager? is this even needed?
+
+void Renderer::N64Mesh::fromT3DM(const T3DMData &t3dmData, Project::AssetManager &assetManager)
 {
   mesh.vertices.clear();
   mesh.indices.clear();
   parts.clear();
 
-
   parts.resize(t3dmData.models.size());
   auto part = parts.begin();
+
+  auto fallbackTex = assetManager.getFallbackTexture().getGPUTex();
 
   uint16_t idx = 0;
   for (auto &model : t3dmData.models)
@@ -33,7 +41,21 @@ void Renderer::N64Mesh::fromT3DM(const T3DMData &t3dmData)
       model.material.envColor[3],
     };
 
-    printf("Tex: %s\n", model.material.texA.texPath.c_str());
+    part->texBindings[0].texture = fallbackTex;
+    part->texBindings[0].sampler = texSamplerRepeat;
+    part->texBindings[1].texture = fallbackTex;
+    part->texBindings[1].sampler = texSamplerRepeat;
+
+    if (!model.material.texA.texPath.empty()) {
+      auto texEntry = assetManager.getByPath(model.material.texA.texPath);
+      if (texEntry)part->texBindings[0].texture = texEntry->texture->getGPUTex();
+    }
+
+    if (!model.material.texB.texPath.empty()) {
+      auto texEntry = assetManager.getByPath(model.material.texB.texPath);
+      if (texEntry)part->texBindings[1].texture = texEntry->texture->getGPUTex();
+    }
+
     //model.material.colorCombiner
     for (auto &tri : model.triangles) {
 
@@ -75,6 +97,8 @@ void Renderer::N64Mesh::draw(SDL_GPURenderPass* pass, UniformsObject &uniforms)
 {
   for (auto &part : parts) {
     uniforms.mat = part.material;
+    SDL_BindGPUFragmentSamplers(pass, 0, part.texBindings, 2);
+
     mesh.draw(pass, part.indicesOffset, part.indicesCount);
   }
   //mesh.draw(pass);

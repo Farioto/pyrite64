@@ -12,18 +12,19 @@ layout (location = 6) in flat ivec4 v_cc1Alpha;
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out uint ObjID;
 
-layout(set = 2, binding = 0) uniform sampler2D texSampler;
+layout(set = 2, binding = 0) uniform sampler2D texSampler0;
+layout(set = 2, binding = 1) uniform sampler2D texSampler1;
 
 void main()
 {
   ivec2 uvNorm = ivec2(v_uv);
   // tex-size:
 
-  ivec2 texSize = textureSize(texSampler, 0);
+  ivec2 texSize = textureSize(texSampler0, 0);
   // repeat
   uvNorm = ivec2(mod(uvNorm.x, texSize.x), mod(uvNorm.y, texSize.y));
 
-  FragColor = texelFetch(texSampler, uvNorm, 0) * v_color;
+  FragColor = texelFetch(texSampler0, uvNorm, 0) * v_color;
 
   //FragColor = v_color;
   ObjID = v_objectID;

@@ -7,6 +7,8 @@
 #include "uniforms.h"
 #include "tiny3d/tools/gltf_importer/src/structs.h"
 
+namespace Project { class AssetManager; }
+
 namespace Renderer
 {
   class N64Mesh
@@ -17,13 +19,15 @@ namespace Renderer
         uint32_t indicesOffset{0};
         uint32_t indicesCount{0};
         UniformN64Material material{};
+
+        SDL_GPUTextureSamplerBinding texBindings[2]{};
       };
 
       Mesh mesh{};
       std::vector<MeshPart> parts{};
 
     public:
-      void fromT3DM(const T3DMData &t3dmData);
+      void fromT3DM(const T3DMData &t3dmData, Project::AssetManager &assetManager);
 
       void recreate(Renderer::Scene &scene);
       void draw(SDL_GPURenderPass* pass, UniformsObject &uniforms);

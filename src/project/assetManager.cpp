@@ -57,9 +57,13 @@ std::string Project::AssetManager::AssetConf::serialize() const {
 }
 
 Project::AssetManager::AssetManager(Project* pr)
-  : project{pr}
+  : project{pr}, fallbackTex{ctx.gpu, "data/img/fallback.png"}
 {
   defaultScript = Utils::FS::loadTextFile("data/scripts/default.cpp");
+}
+
+Project::AssetManager::~AssetManager() {
+
 }
 
 void Project::AssetManager::reload() {
@@ -109,17 +113,6 @@ void Project::AssetManager::reload() {
       if (type == FileType::IMAGE && ctx.window) {
         entry.texture = std::make_shared<Renderer::Texture>(ctx.gpu, path.string());
       }
-      if (type == FileType::MODEL_3D) {
-        try {
-          entry.t3dmData = parseGLTF(path.string().c_str(), 64.0f);
-          if (!entry.t3dmData.models.empty()) {
-            entry.mesh3D = std::make_shared<Renderer::N64Mesh>();
-            entry.mesh3D->fromT3DM(entry.t3dmData);
-          }
-        } catch (...) {
-          Utils::Logger::log("Failed to load 3D model asset: " + path.string());
-        }
-      }
 
       // check if meta-data exists
       auto pathMeta = path;
@@ -139,6 +132,23 @@ void Project::AssetManager::reload() {
 
       entries[(int)type].push_back(entry);
       entriesMap[entry.uuid] = static_cast<int>(entries.size() - 1);
+    }
+  }
+
+  // now load models (after all textures are there now)
+  for (auto &typed : entries) {
+    for (auto &entry : typed) {
+      if (entry.type == FileType::MODEL_3D) {
+        try {
+          entry.t3dmData = parseGLTF(entry.path.c_str(), entry.conf.baseScale);
+          if (!entry.t3dmData.models.empty()) {
+            entry.mesh3D = std::make_shared<Renderer::N64Mesh>();
+            entry.mesh3D->fromT3DM(entry.t3dmData, *this);
+          }
+        } catch (...) {
+          Utils::Logger::log("Failed to load 3D model asset: " + entry.path);
+        }
+      }
     }
   }
 

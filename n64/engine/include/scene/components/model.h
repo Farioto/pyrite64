@@ -36,9 +36,9 @@ namespace P64::Comp
       assert(data->model != nullptr);
 
       data->matFP.fillSRT(
-        {0.01f, 0.01f, 0.01f},
+        obj.scale,
         {0,0,0},
-        {0,0,0}
+        obj.pos
       );
       // auto scriptPtr = Script::getCodeByIndex(initData[0]);
       // reserved: initData[1];
@@ -47,7 +47,7 @@ namespace P64::Comp
     static void update(Object& obj, Model* data) {
       auto mat = data->matFP.getNext();
       t3d_mat4fp_from_srt_euler(mat,
-        {0.01f, 0.01f, 0.01f},
+        obj.scale,
         {0,0,0},
         obj.pos
       );

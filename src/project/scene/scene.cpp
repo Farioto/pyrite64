@@ -15,6 +15,7 @@
 namespace
 {
   constinit uint64_t nextUUID{1};
+  constexpr float DEF_MODEL_SCALE = 1.0f / 64.0f;
 }
 
 std::string Project::SceneConf::serialize() const {
@@ -47,7 +48,7 @@ std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
   child->id = nextUUID++;
   child->name = "New Object ("+std::to_string(child->id)+")";
   child->uuid = Utils::Hash::sha256_64bit(child->name + std::to_string(rand()));
-  child->scale = {1,1,1};
+  child->scale = {DEF_MODEL_SCALE, DEF_MODEL_SCALE, DEF_MODEL_SCALE};
   child->rot = glm::identity<glm::quat>();
   return addObject(parent, child);
 }

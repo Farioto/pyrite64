@@ -26,6 +26,7 @@ namespace P64
 
       // extra data, is overlapping with component data if unused
       fm_vec3_t pos{};
+      fm_vec3_t scale{};
 
       // component references, this is then also followed by a buffer for the actual data
       // the object allocation logic keeps extra space to fit everything

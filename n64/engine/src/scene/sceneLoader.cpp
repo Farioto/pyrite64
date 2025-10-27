@@ -25,6 +25,7 @@ namespace {
     uint16_t type;
     uint16_t id;
     fm_vec3_t pos;
+    fm_vec3_t scale;
     // data follows
   };
 
@@ -114,6 +115,7 @@ void P64::Scene::loadScene() {
           obj->id = objEntry->id;
           obj->compCount = compCount;
           obj->pos = objEntry->pos;
+          obj->scale = objEntry->scale;
 
           ptrIn = objFile + sizeof(ObjectEntry);
           while(ptrIn[1] != 0)

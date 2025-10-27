@@ -84,8 +84,6 @@ void main()
   // @TODO: uvgen (f3d + t3d)
   // forward CC (@TODO: do part of this here? e.g. prim/env/shade etc.)
 
-  vec3 posQuant = vec3(inPosition) / (32768.0 / 256.0);
-
-  gl_Position = matMVP * vec4(posQuant, 1.0);
+  gl_Position = matMVP * vec4(vec3(inPosition), 1.0);
   posScreen = gl_Position.xy / gl_Position.w;
 }

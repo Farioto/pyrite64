@@ -26,6 +26,7 @@ namespace Renderer
 
       Mesh mesh{};
       std::vector<MeshPart> parts{};
+      bool loaded{false};
 
     public:
       void fromT3DM(const T3DMData &t3dmData, Project::AssetManager &assetManager);
@@ -34,5 +35,6 @@ namespace Renderer
       void draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer *cmdBuff, UniformsObject &uniforms);
 
       const Utils::AABB& getAABB() const { return mesh.getAABB(); }
+      bool isLoaded() const { return loaded; }
   };
 }

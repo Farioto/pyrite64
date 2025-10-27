@@ -81,6 +81,7 @@ void Renderer::N64Mesh::fromT3DM(const T3DMData &t3dmData, Project::AssetManager
 
 void Renderer::N64Mesh::recreate(Renderer::Scene &scene) {
   mesh.recreate(scene);
+  loaded = true;
 }
 
 void Renderer::N64Mesh::draw(SDL_GPURenderPass* pass, SDL_GPUCommandBuffer *cmdBuff, UniformsObject &uniforms)

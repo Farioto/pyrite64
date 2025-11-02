@@ -90,14 +90,13 @@ void Editor::Scene::draw()
   ImGui::End();
   ImGui::PopStyleVar(1);
 
-  ImGui::Begin("Asset");
-    assetInspector.draw();
-  ImGui::End();
-
   ImGui::Begin("Object");
     objectInspector.draw();
   ImGui::End();
 
+  ImGui::Begin("Asset");
+    assetInspector.draw();
+  ImGui::End();
 
   ImGui::Begin("Assets");
   assetsBrowser.draw();
@@ -143,6 +142,7 @@ void Editor::Scene::draw()
   }
 
   // Top bar
+  ImGui::SetNextWindowSize({io.DisplaySize.x, HEIGHT_TOP_BAR}, ImGuiCond_Always);
   ImGui::SetNextWindowPos({0,0}, ImGuiCond_Appearing, {0.0f, 0.0f});
   ImGui::Begin("TOP_BAR", 0,
     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar

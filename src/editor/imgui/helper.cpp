@@ -9,9 +9,8 @@ namespace
   constexpr ImVec4 COLOR_NONE{0,0,0,0};
 }
 
-bool ImGui::IconButton(const char* label, const ImVec4 &color)
+bool ImGui::IconButton(const char* label, const ImVec2 &labelSize, const ImVec4 &color)
 {
-  const ImVec2 labelSize{16,16};
   ImVec2 min = GetCursorScreenPos();
   ImVec2 max = ImVec2(min.x + labelSize.x, min.y + labelSize.y);
   bool hovered = IsMouseHoveringRect(min, max);

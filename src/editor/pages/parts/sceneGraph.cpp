@@ -137,6 +137,7 @@ namespace
     {
       float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
       constexpr float buttonSize = 12;
+      ImVec2 iconSize{16, 21};
 
       auto oldCursorPos = ImGui::GetCursorPos();
       ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::GetStyle().WindowPadding.x - buttonSize * 2 - spacing);
@@ -146,9 +147,9 @@ namespace
       ImGui::PushID(("vis_" + std::to_string(obj.uuid)).c_str());
 
       int clicked = 0;
-      clicked |= ImGui::IconToggle(obj.selectable, ICON_MDI_CURSOR_DEFAULT, ICON_MDI_CURSOR_DEFAULT_OUTLINE);
+      clicked |= ImGui::IconToggle(obj.selectable, ICON_MDI_CURSOR_DEFAULT, ICON_MDI_CURSOR_DEFAULT_OUTLINE, iconSize);
       ImGui::SameLine(0, spacing);
-      clicked |= ImGui::IconToggle(obj.enabled, ICON_MDI_CHECKBOX_MARKED, ICON_MDI_CHECKBOX_BLANK_OUTLINE);
+      clicked |= ImGui::IconToggle(obj.enabled, ICON_MDI_CHECKBOX_MARKED, ICON_MDI_CHECKBOX_BLANK_OUTLINE, iconSize);
 
       if(clicked)nodeIsClicked = false;
 

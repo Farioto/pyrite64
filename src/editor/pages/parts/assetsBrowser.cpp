@@ -174,9 +174,9 @@ void Editor::AssetsBrowser::draw() {
     for (const auto &scene : scenes)
     {
       checkLineBreak();
-      int selId = ctx.project->getScenes().getLoadedScene()->getId();
+      auto activeScene = ctx.project->getScenes().getLoadedScene();
 
-      bool isSelected = (selId == scene.id);
+      bool isSelected = activeScene && (activeScene->getId() == scene.id);
       if(isSelected) {
         ImGui::PushStyleColor(ImGuiCol_Button, {0.5f,0.5f,0.7f,1});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.5f,0.5f,0.7f,0.8f});

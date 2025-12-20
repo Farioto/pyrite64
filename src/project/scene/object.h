@@ -54,5 +54,18 @@ namespace Project
       bool isPrefabInstance() const {
         return uuidPrefab.value != 0;
       }
+
+      template<typename T>
+      void addPropOverride(const Property<T>& prop)
+      {
+        GenericValue genVal{};
+        genVal.set<T>(prop.value);
+        propOverrides[prop.id] = genVal;
+      }
+
+      template<typename T>
+      void removePropOverride(const Property<T>& prop) {
+        propOverrides.erase(prop.id);
+      }
   };
 }

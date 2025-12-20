@@ -31,6 +31,12 @@ namespace
       .set(obj.rot)
       .set(obj.scale);
 
+    Builder builderOver{};
+    for(auto &[key, val] : obj.propOverrides) {
+      builderOver.set(std::to_string(key), val.serialize());
+    }
+    builder.setRaw("propOverrides", builderOver.toString());
+
     std::vector<Builder> comps{};
     for (auto &comp : obj.components) {
       auto &def = Project::Component::TABLE[comp.id];
@@ -95,6 +101,20 @@ void Project::Object::deserialize(Scene *scene, const simdjson::simdjson_result<
   Utils::JSON::readProp(doc, pos);
   Utils::JSON::readProp(doc, rot);
   Utils::JSON::readProp(doc, scale, {1,1,1});
+
+  propOverrides.clear();
+  auto overrides = doc["propOverrides"];
+  if (overrides.error() == simdjson::SUCCESS)
+  {
+    for(auto &[key, val] : overrides.get_object())
+    {
+      uint64_t keyInt = std::stoull(std::string(key));
+      GenericValue v{};
+      v.deserialize(std::string{val.get_string().value()});
+      propOverrides[keyInt] = v;
+    }
+  }
+
 
   auto cmArray = doc["components"].get_array();
   if (cmArray.error() == simdjson::SUCCESS) {

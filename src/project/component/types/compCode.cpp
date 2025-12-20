@@ -103,7 +103,6 @@ namespace Project::Component::Code
 
     if (ImTable::start("Comp", &obj)) {
       ImTable::add("Name", entry.name);
-      ImTable::add("Script");
       int idx = ImTable::addVecComboBox("Script", scriptList, data.scriptUUID);
       //ImGui::InputScalar("##UUID", ImGuiDataType_U64, &data.scriptUUID);
 

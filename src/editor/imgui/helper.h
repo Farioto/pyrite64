@@ -112,7 +112,6 @@ namespace ImTable
     return res;
   }
 
-
   inline void addComboBox(const std::string &name, int &itemCurrent, const char* const items[], int itemsCount) {
     add(name);
     bool disabled = (obj && obj->uuidPrefab.value);
@@ -184,11 +183,30 @@ namespace ImTable
     ImGui::PushID(&prop);
 
     bool isOverride{true};
+
     T *val = &prop.value;
-    if(obj->uuidPrefab.value) {
+    if(obj->isPrefabInstance()) {
       val = &prop.resolve(obj->propOverrides, &isOverride);
     }
     if(!isOverride)ImGui::BeginDisabled();
+
+    if(obj && obj->isPrefabInstance())
+    {
+      bool isOverrideLocal = isOverride;
+      if(ImGui::IconToggle(
+        isOverrideLocal,
+        ICON_MDI_LOCK_OPEN,
+        ICON_MDI_LOCK,
+        ImVec2{16,16}
+      )) {
+        if(isOverrideLocal) {
+          obj->addPropOverride(prop);
+        } else {
+          obj->removePropOverride(prop);
+        }
+      }
+      ImGui::SameLine();
+    }
 
     res = typedInput<T>(val);
 

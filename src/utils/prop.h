@@ -11,9 +11,10 @@
 #include "glm/vec4.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-
 struct GenericValue
 {
+  int type{-1};
+
   std::string valString{};
   union
   {
@@ -27,6 +28,23 @@ struct GenericValue
     float valFloat;
     bool valBool;
   };
+
+  template<typename T>
+  constexpr static int typeToId()
+  {
+    // NOTE: do NOT change those IDs or any saved prefabs/scenes will break!
+         if constexpr (std::is_same_v<T,   glm::quat>)return 0;
+    else if constexpr (std::is_same_v<T,   glm::vec3>)return 1;
+    else if constexpr (std::is_same_v<T,   glm::vec4>)return 2;
+    else if constexpr (std::is_same_v<T,    uint64_t>)return 3;
+    else if constexpr (std::is_same_v<T,    uint32_t>)return 4;
+    else if constexpr (std::is_same_v<T,     int64_t>)return 5;
+    else if constexpr (std::is_same_v<T,     int32_t>)return 6;
+    else if constexpr (std::is_same_v<T,       float>)return 7;
+    else if constexpr (std::is_same_v<T,        bool>)return 8;
+    else if constexpr (std::is_same_v<T, std::string>)return 9;
+    else static_assert(false, "Unsupported type in GenericValue::get");
+  }
 
   template<typename T>
   constexpr T& get()
@@ -55,6 +73,15 @@ struct GenericValue
       static_assert(false, "Unsupported type in GenericValue::get");
     }
   }
+
+  template<typename T>
+  constexpr void set(T val) {
+    get<T>() = val;
+    type = typeToId<T>();
+  }
+
+  std::string serialize() const;
+  void deserialize(const std::string &str);
 };
 
 template<typename T>

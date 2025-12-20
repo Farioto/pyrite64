@@ -39,21 +39,21 @@ void Editor::AssetInspector::draw() {
   ImGui::Text("File: %s", asset->name.c_str());
   if (hasAssetConf && ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    ImGui::InpTable::start("Settings");
+    ImTable::start("Settings");
 
     if (asset->type == FileType::IMAGE)
     {
-      ImGui::InpTable::addComboBox("Format", asset->conf.format, Utils::TEX_TYPES, Utils::TEX_TYPE_COUNT);
+      ImTable::addComboBox("Format", asset->conf.format, Utils::TEX_TYPES, Utils::TEX_TYPE_COUNT);
     }
     else if (asset->type == FileType::MODEL_3D)
     {
-      if (ImGui::InpTable::add("Base-Scale", asset->conf.baseScale)) {
+      if (ImTable::add("Base-Scale", asset->conf.baseScale)) {
         ctx.project->getAssets().reloadAssetByUUID(asset->uuid);
       }
-      ImGui::InpTable::addCheckBox("Create BVH", asset->conf.gltfBVH);
+      ImTable::addCheckBox("Create BVH", asset->conf.gltfBVH);
     } else if (asset->type == FileType::FONT)
     {
-      ImGui::InpTable::add("Size", asset->conf.baseScale);
+      ImTable::add("Size", asset->conf.baseScale);
     }
 
     int idxCompr = static_cast<int>(asset->conf.compression);
@@ -63,12 +63,12 @@ void Editor::AssetInspector::draw() {
       "Level 2 - Good",
       "Level 3 - High",
     };
-    ImGui::InpTable::addComboBox("Compression", idxCompr, ComprItems, 5);
+    ImTable::addComboBox("Compression", idxCompr, ComprItems, 5);
     asset->conf.compression = static_cast<Project::ComprTypes>(idxCompr);
 
-    ImGui::InpTable::addCheckBox("Exclude", asset->conf.exclude);
+    ImTable::addCheckBox("Exclude", asset->conf.exclude);
 
-    ImGui::InpTable::end();
+    ImTable::end();
   }
 
   if (ImGui::CollapsingHeader("Preview", ImGuiTreeNodeFlags_DefaultOpen)) {

@@ -69,7 +69,7 @@ namespace ImGui
   }
 }
 
-namespace ImGui::InpTable
+namespace ImTable
 {
   constinit inline static Project::Object *obj{nullptr};
 
@@ -140,9 +140,9 @@ namespace ImGui::InpTable
   template<typename T>
   bool add(const std::string &name, T &value) {
     add(name);
-    PushID(name.c_str());
+    ImGui::PushID(name.c_str());
     bool res = typedInput<T>(&value);
-    PopID();
+    ImGui::PopID();
     return res;
   }
 
@@ -154,7 +154,7 @@ namespace ImGui::InpTable
   {
     if(!obj)return false;
     bool res{};
-    InpTable::add(name);
+    ImTable::add(name);
     ImGui::PushID(&prop);
 
     bool isOverride{true};

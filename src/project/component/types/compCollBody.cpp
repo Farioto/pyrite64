@@ -57,20 +57,20 @@ namespace Project::Component::CollBody
   {
     Data &data = *static_cast<Data*>(entry.data.get());
 
-    if (ImGui::InpTable::start("Comp")) {
-      ImGui::InpTable::add("Name", entry.name);
+    if (ImTable::start("Comp")) {
+      ImTable::add("Name", entry.name);
 
-      ImGui::InpTable::addComboBox("Type", data.type, {"Box", "Sphere", "Cylinder"});
+      ImTable::addComboBox("Type", data.type, {"Box", "Sphere", "Cylinder"});
       if(data.type == 1) {
-        ImGui::InpTable::add("Size", data.halfExtend.y);
+        ImTable::add("Size", data.halfExtend.y);
         data.halfExtend.x = data.halfExtend.y;
         data.halfExtend.z = data.halfExtend.y;
       } else {
-        ImGui::InpTable::add("Size", data.halfExtend);
+        ImTable::add("Size", data.halfExtend);
       }
-      ImGui::InpTable::add("Offset", data.offset);
+      ImTable::add("Offset", data.offset);
 
-      ImGui::InpTable::end();
+      ImTable::end();
     }
   }
 

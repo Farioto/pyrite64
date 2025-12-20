@@ -13,16 +13,16 @@
 bool Editor::ProjectSettings::draw()
 {
   if (ImGui::CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("General");
-    ImGui::InpTable::add("Name", ctx.project->conf.name);
-    ImGui::InpTable::add("ROM-Name", ctx.project->conf.romName);
-    ImGui::InpTable::end();
+    ImTable::start("General");
+    ImTable::add("Name", ctx.project->conf.name);
+    ImTable::add("ROM-Name", ctx.project->conf.romName);
+    ImTable::end();
   }
   if (ImGui::CollapsingHeader("Environment", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Environment");
-    ImGui::InpTable::addPath("Emulator", ctx.project->conf.pathEmu);
-    ImGui::InpTable::addPath("N64_INST", ctx.project->conf.pathN64Inst, true, "$N64_INST");
-    ImGui::InpTable::end();
+    ImTable::start("Environment");
+    ImTable::addPath("Emulator", ctx.project->conf.pathEmu);
+    ImTable::addPath("N64_INST", ctx.project->conf.pathN64Inst, true, "$N64_INST");
+    ImTable::end();
   }
 
   // close button, positioned to bottom right corner

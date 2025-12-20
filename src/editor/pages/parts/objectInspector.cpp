@@ -41,26 +41,26 @@ void Editor::ObjectInspector::draw() {
 
   //if (ImGui::CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen))
   {
-    if (ImGui::InpTable::start("General")) {
-      ImGui::InpTable::add("Name", obj->name);
+    if (ImTable::start("General")) {
+      ImTable::add("Name", obj->name);
 
       int idProxy = obj->id;
-      ImGui::InpTable::add("ID", idProxy);
+      ImTable::add("ID", idProxy);
       obj->id = static_cast<uint16_t>(idProxy);
 
-      //ImGui::InpTable::add("UUID");
+      //ImTable::add("UUID");
       //ImGui::Text("0x%16lX", obj->uuid);
 
-      ImGui::InpTable::end();
+      ImTable::end();
     }
   }
 
   if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-    if (ImGui::InpTable::start("Transform", obj.get())) {
-      ImGui::InpTable::addProp("Pos", srcObj->pos);
-      ImGui::InpTable::addProp("Scale", srcObj->scale);
-      ImGui::InpTable::addProp("Rot", srcObj->rot);
-      ImGui::InpTable::end();
+    if (ImTable::start("Transform", obj.get())) {
+      ImTable::addProp("Pos", srcObj->pos);
+      ImTable::addProp("Scale", srcObj->scale);
+      ImTable::addProp("Rot", srcObj->rot);
+      ImTable::end();
     }
   }
 

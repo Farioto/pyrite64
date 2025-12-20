@@ -67,9 +67,9 @@ namespace Project::Component::Model
     auto &assets = ctx.project->getAssets();
     auto &modelList = assets.getTypeEntries(AssetManager::FileType::MODEL_3D);
 
-    if (ImGui::InpTable::start("Comp")) {
-      ImGui::InpTable::add("Name", entry.name);
-      ImGui::InpTable::add("Model");
+    if (ImTable::start("Comp")) {
+      ImTable::add("Name", entry.name);
+      ImTable::add("Model");
       //ImGui::InputScalar("##UUID", ImGuiDataType_U64, &data.scriptUUID);
 
       int idx = modelList.size();
@@ -96,7 +96,7 @@ namespace Project::Component::Model
         data.modelUUID = script.uuid;
       }
 
-      ImGui::InpTable::end();
+      ImTable::end();
     }
   }
 

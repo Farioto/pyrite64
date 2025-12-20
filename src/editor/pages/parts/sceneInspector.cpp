@@ -16,26 +16,26 @@ void Editor::SceneInspector::draw() {
   if(!scene)return;
 
   if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Settings");
-    ImGui::InpTable::add("Name", scene->conf.name);
+    ImTable::start("Settings");
+    ImTable::add("Name", scene->conf.name);
 
-    ImGui::InpTable::end();
+    ImTable::end();
   }
 
   if (ImGui::CollapsingHeader("Framebuffer", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InpTable::start("Framebuffer");
+    ImTable::start("Framebuffer");
 
-    ImGui::InpTable::add("Width", scene->conf.fbWidth);
-    ImGui::InpTable::add("Height", scene->conf.fbHeight);
+    ImTable::add("Width", scene->conf.fbWidth);
+    ImTable::add("Height", scene->conf.fbHeight);
 
     constexpr const char* const FORMATS[] = {"RGBA16","RGBA32"};
-    ImGui::InpTable::addComboBox("Format", scene->conf.fbFormat, FORMATS, 2);
+    ImTable::addComboBox("Format", scene->conf.fbFormat, FORMATS, 2);
 
-    ImGui::InpTable::addColor("Color", scene->conf.clearColor, false);
+    ImTable::addColor("Color", scene->conf.clearColor, false);
     scene->conf.clearColor.a = 1.0f;
 
-    ImGui::InpTable::addCheckBox("Clear Color", scene->conf.doClearColor);
-    ImGui::InpTable::addCheckBox("Clear Depth", scene->conf.doClearDepth);
-    ImGui::InpTable::end();
+    ImTable::addCheckBox("Clear Color", scene->conf.doClearColor);
+    ImTable::addCheckBox("Clear Depth", scene->conf.doClearDepth);
+    ImTable::end();
   }
 }

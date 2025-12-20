@@ -94,14 +94,14 @@ namespace Project::Component::Light
   void draw(Object &obj, Entry &entry) {
     Data &data = *static_cast<Data*>(entry.data.get());
 
-    if (ImGui::InpTable::start("Comp"))
+    if (ImTable::start("Comp"))
     {
-      ImGui::InpTable::add("Name", entry.name);
-      ImGui::InpTable::addComboBox("Type", data.type, LIGHT_TYPES, LIGHT_TYPE_COUNT);
-      ImGui::InpTable::add("Index", data.index);
-      ImGui::InpTable::addColor("Color", data.color, true);
+      ImTable::add("Name", entry.name);
+      ImTable::addComboBox("Type", data.type, LIGHT_TYPES, LIGHT_TYPE_COUNT);
+      ImTable::add("Index", data.index);
+      ImTable::addColor("Color", data.color, true);
 
-      ImGui::InpTable::end();
+      ImTable::end();
     }
   }
 

@@ -77,4 +77,5 @@ add_executable(n64_engine
         engine/src/scene/components/audio2d.cpp
         engine/src/scene/components/collBody.cpp
         engine/include/collision/flags.h
+        engine/src/renderer/hdr/rspHDR.cpp
 )

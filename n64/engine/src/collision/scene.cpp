@@ -187,12 +187,13 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
   for(auto meshInst : meshes)
   {
     auto &mesh = *meshInst->mesh;
-    auto posLocal = pos - meshInst->pos;
+    auto posLocal = meshInst->intoLocalSpace(pos);
+
     Coll::IVec3 posInt = {
       .v = {
-        (int16_t)(posLocal.v[0] * 64.0f),
-        (int16_t)(posLocal.v[1] * 64.0f),
-        (int16_t)(posLocal.v[2] * 64.0f)
+        (int16_t)(posLocal.v[0]),
+        (int16_t)(posLocal.v[1]),
+        (int16_t)(posLocal.v[2])
       }
     };
 
@@ -222,7 +223,7 @@ Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {
       auto collInfo = mesh.vsFloorRay(posLocal, tri);
       if(collInfo.hasResult() && collInfo.hitPos.v[1] > highestFloor)
       {
-        res.hitPos = collInfo.hitPos + meshInst->pos;
+        res.hitPos = meshInst->outOfLocalSpace(collInfo.hitPos);
         res.normal = collInfo.normal;
         highestFloor = collInfo.hitPos.v[1];
       }

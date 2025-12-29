@@ -20,8 +20,7 @@ namespace {
   P64::Renderer::HDR::Config config{
     .blurSteps = 4,
     .blurBrightness = 1.0f,
-    //.hdrFactor = 1.5f,
-    .hdrFactor = 0.5f,
+    .hdrFactor = 2.0f,
     .bloomThreshold = 0.2f,
     .scalingUseRDP = true,
   };
@@ -38,6 +37,7 @@ void P64::RenderPipelineHDRBloom::init()
 
   for(auto &fb : surfFbColor) {
     fb = surface_alloc(FMT_RGBA16, SCREEN_WIDTH, SCREEN_HEIGHT);
+    Mem::clearSurface(fb);
   }
 
   RspHDR::init();

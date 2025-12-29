@@ -51,6 +51,7 @@ void Editor::AssetInspector::draw() {
         ctx.project->getAssets().reloadAssetByUUID(asset->uuid);
       }
       ImTable::addCheckBox("Create BVH", asset->conf.gltfBVH);
+      ImTable::addProp("Collision", asset->conf.gltfCollision);
     } else if (asset->type == FileType::FONT)
     {
       ImTable::add("Size", asset->conf.baseScale);

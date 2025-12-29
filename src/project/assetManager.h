@@ -49,6 +49,8 @@ namespace Project
         int format{0};
         int baseScale{0};
         bool gltfBVH{0};
+        PROP_BOOL(gltfCollision);
+
         ComprTypes compression{ComprTypes::DEFAULT};
         bool exclude{false};
 

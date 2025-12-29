@@ -122,7 +122,7 @@ namespace Project::Component::Model
       }
     }
 
-    if(ctx.project->getScenes().getLoadedScene()->conf.renderPipeline.value != 0)
+    if(ctx.project->getScenes().getLoadedScene()->conf.renderPipeline.value == 2)
     {
       data.obj3D.uniform.mat.flags = 0;
       if(data.layerIdx.value == 0)data.obj3D.uniform.mat.flags |= T3D_FLAG_NO_LIGHT;

@@ -46,7 +46,10 @@ bool Build::buildT3DMAssets(Project::Project &project, SceneCtx &sceneCtx)
     auto t3dm = T3DM::parseGLTF(model.path.c_str());
 
     std::vector<T3DM::CustomChunk> customChunks{};
-    customChunks.emplace_back('0', buildCollision(model.path, T3DM::config.globalScale));
+
+    if(model.conf.gltfCollision.value) {
+      customChunks.emplace_back('0', buildCollision(model.path, T3DM::config.globalScale));
+    }
 
     T3DM::writeT3DM(t3dm, t3dmPath.c_str(), projectPath, customChunks);
 

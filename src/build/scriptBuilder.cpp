@@ -27,10 +27,9 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
   for (auto &script : scripts)
   {
     auto src = Utils::FS::loadTextFile(script.path);
-    bool hasInit = Utils::CPP::hasFunction(src, "void", "init");
+    bool hasInit = Utils::CPP::hasFunction(src, "void", "initDelete");
     bool hasUpdate = Utils::CPP::hasFunction(src, "void", "update");
     bool hasDraw = Utils::CPP::hasFunction(src, "void", "draw");
-    bool hasDestroy = Utils::CPP::hasFunction(src, "void", "destroy");
     bool hasEvent = Utils::CPP::hasFunction(src, "void", "onEvent");
     bool hasColl = Utils::CPP::hasFunction(src, "void", "onCollision");
 
@@ -40,19 +39,17 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
 
     srcDecl += "  namespace " + uuidStr + " {\nstruct Data;\n";
     srcDecl += " extern uint16_t DATA_SIZE;\n";
-    if(hasInit)srcDecl += "void init(Object& obj, Data *data);\n";
+    if(hasInit)srcDecl += "void initDelete(Object& obj, Data *data, bool isDelete);\n";
     if(hasUpdate)srcDecl += "void update(Object& obj, Data *data, float deltaTime);\n";
     if(hasDraw)srcDecl += "void draw(Object& obj, Data *data, float deltaTime);\n";
-    if(hasDestroy)srcDecl += "void destroy(Object& obj, Data *data);\n";
     if(hasEvent)srcDecl += "void onEvent(Object& obj, Data *data, const ObjectEvent& event);\n";
     if(hasColl)srcDecl += "void onCollision(Object& obj, Data *data, const Coll::CollEvent& event);\n";
     srcDecl += "}\n";
 
     srcEntries += "{\n";
-    if(hasInit)srcEntries += " .init = (FuncObjData)" + uuidStr + "::init,\n";
+    if(hasInit)srcEntries += " .initDelete = (FuncObjInit)" + uuidStr + "::initDelete,\n";
     if(hasUpdate)srcEntries += " .update = (FuncObjDataDelta)" + uuidStr + "::update,\n";
     if(hasDraw)srcEntries += " .draw = (FuncObjDataDelta)" + uuidStr + "::draw,\n";
-    if(hasDestroy)srcEntries += " .destroy = (FuncObjData)" + uuidStr + "::destroy,\n";
     if(hasEvent)srcEntries += " .onEvent = (FuncObjDataEvent)" + uuidStr + "::onEvent,\n";
     if(hasColl)srcEntries += " .onColl = (FuncObjDataColl)" + uuidStr + "::onCollision,\n";
     srcEntries += "},\n";

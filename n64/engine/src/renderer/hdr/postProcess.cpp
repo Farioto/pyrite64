@@ -2,6 +2,8 @@
 #include "rspHDR.h"
 #include <utility>
 
+#include "lib/memory.h"
+
 namespace {
   constexpr bool MEASURE_PERF = false;
 
@@ -20,6 +22,10 @@ P64::Renderer::HDR::PostProcess::PostProcess()
   surfHDR = surface_alloc(FMT_RGBA32, SCREEN_WIDTH, SCREEN_HEIGHT + 4);
   surfBlurA = surface_alloc(FMT_RGBA32, sizeLowX, sizeLowY + 4);
   surfBlurB = surface_alloc(FMT_RGBA32, sizeLowX, sizeLowY + 4);
+
+  Mem::clearSurface(surfHDR);
+  Mem::clearSurface(surfBlurA);
+  Mem::clearSurface(surfBlurB);
 
   surfHDRSafe = surface_make_sub(&surfHDR, 0, 2, surfHDR.width, SCREEN_HEIGHT);
   surfBlurASafe = surface_make_sub(&surfBlurA, 0, 2, surfBlurA.width, sizeLowY);

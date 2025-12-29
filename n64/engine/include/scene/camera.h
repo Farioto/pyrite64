@@ -49,6 +49,13 @@ namespace P64
     [[nodiscard]] const fm_vec3_t &getTarget() const { return target; }
     [[nodiscard]] const fm_vec3_t &getPos() const { return pos; }
 
+    [[nodiscard]] fm_vec3_t getViewDir() const {
+      fm_vec3_t dir{};
+      fm_vec3_sub(&dir, &target, &pos);
+      fm_vec3_norm(&dir, &dir);
+      return dir;
+    }
+
     fm_vec3_t getScreenPos(const fm_vec3_t &worldPos);
   };
 }

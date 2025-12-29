@@ -32,6 +32,7 @@ void Renderer::Mesh::recreate(Renderer::Scene &scene, bool clearData) {
   }
 
   scene.addOneTimeCopyPass([this, clearData](SDL_GPUCommandBuffer* cmdBuff, SDL_GPUCopyPass *copyPass){
+    if(!vertBuff)return;
     vertBuff->upload(*copyPass);
     dataReady = true;
 

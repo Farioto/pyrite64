@@ -32,4 +32,8 @@ namespace P64::Mem
    * @return heap-different in bytes
    */
   int32_t getHeapDiff();
+
+  inline void clearSurface(surface_t &surf) {
+    sys_hw_memset64(surf.buffer, 0, surf.height * surf.stride);
+  }
 }

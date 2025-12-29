@@ -55,12 +55,14 @@ namespace
       conf.baseScale = Utils::JSON::readInt(doc, "baseScale");
       conf.compression = (Project::ComprTypes)Utils::JSON::readInt(doc, "compression");
       conf.gltfBVH = Utils::JSON::readBool(doc, "gltfBVH");
-      conf.exclude = Utils::JSON::readBool(doc, "exclude");
+      Utils::JSON::readProp(doc, conf.gltfCollision);
       Utils::JSON::readProp(doc, conf.wavForceMono);
       Utils::JSON::readProp(doc, conf.wavResampleRate);
       Utils::JSON::readProp(doc, conf.wavCompression);
       Utils::JSON::readProp(doc, conf.fontId);
       Utils::JSON::readProp(doc, conf.fontCharset);
+
+      conf.exclude = Utils::JSON::readBool(doc, "exclude");
     }
   }
 }
@@ -71,6 +73,7 @@ std::string Project::AssetManager::AssetConf::serialize() const {
     .set("baseScale", baseScale)
     .set("compression", static_cast<int>(compression))
     .set("gltfBVH", gltfBVH)
+    .set(gltfCollision)
     .set(wavForceMono)
     .set(wavResampleRate)
     .set(wavCompression)
@@ -149,7 +152,7 @@ void Project::AssetManager::reload() {
   auto projectBase = fs::absolute(project->getPath()).string();
 
   // scan all files
-  for (const auto &entry : fs::directory_iterator{assetPath}) {
+  for (const auto &entry : fs::recursive_directory_iterator{assetPath}) {
     if (entry.is_regular_file()) {
       auto path = entry.path();
       auto ext = path.extension().string();

@@ -84,7 +84,10 @@ void Editor::LayerInspector::draw() {
 
   drawLayers(scene->conf.layers3D, "3D Layers");
   ImGui::Dummy({0, 2});
-  //drawLayers(scene->conf.layersPtx, "Particle Layer");
+
+  drawLayers(scene->conf.layersPtx, "Particle Layers");
+  ImGui::Dummy({0, 2});
+
   drawLayers(scene->conf.layers2D, "2D Layers");
   ImGui::Dummy({0, 2});
 

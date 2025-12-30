@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <libdragon.h>
 #include <t3d/t3d.h>
+#include <t3d/tpx.h>
 
 #include "../include/scene/sceneManager.h"
 #include "vi/swapChain.h"
@@ -50,6 +51,8 @@ int main()
   // rdpq_debug_start();
 
   t3d_init({});
+  tpx_init({});
+
   joypad_init();
 
   P64::AssetManager::init();

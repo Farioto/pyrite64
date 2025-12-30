@@ -6,6 +6,7 @@
 #include "../libdragon/rspq.h"
 #include <array>
 #include <vector>
+#include <t3d/tpx.h>
 
 #include "lib/logger.h"
 
@@ -114,6 +115,21 @@ void P64::DrawLayer::draw3D()
 
 void P64::DrawLayer::drawPtx()
 {
+  rdpq_sync_pipe();
+  rdpq_set_mode_standard();
+
+  rdpq_mode_begin();
+    rdpq_mode_zbuf(true, true);
+    rdpq_mode_zoverride(true, 0, 0);
+    rdpq_mode_combiner(RDPQ_COMBINER1((PRIM,0,ENV,0), (PRIM,0,ENV,0)));
+    rdpq_mode_blender(0);
+  rdpq_mode_end();
+  rdpq_set_env_color({0xFF, 0xFF, 0xFF, 0xFF});
+
+  tpx_state_from_t3d();
+  tpx_state_set_scale(1.0f, 1.0f);
+  tpx_state_set_base_size(128);
+
   int idxStart = layerSetup->layerCount3D;
   for(int i=0; i<layerSetup->layerCountPtx; ++i) {
     draw(idxStart + i);

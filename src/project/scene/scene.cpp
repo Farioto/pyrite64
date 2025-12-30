@@ -237,6 +237,12 @@ void Project::Scene::resetLayers()
   layer.blender.value = RDPQ_BLENDER_MULTIPLY;
   conf.layers3D.push_back(layer);
 
+  layer.name.value = "PTX Opaque";
+  layer.depthCompare.value = true;
+  layer.depthWrite.value = true;
+  layer.blender.value = 0;
+  conf.layersPtx.push_back(layer);
+
   layer.name.value = "2D";
   layer.depthCompare.value = false;
   layer.depthWrite.value = false;

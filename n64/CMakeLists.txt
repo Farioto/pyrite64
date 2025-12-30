@@ -78,4 +78,7 @@ add_executable(n64_engine
         engine/src/scene/components/collBody.cpp
         engine/include/collision/flags.h
         engine/src/renderer/hdr/rspHDR.cpp
+        engine/include/renderer/particles/ptxSprites.h
+        engine/src/renderer/particles/ptxSystem.cpp
+        engine/src/renderer/particles/ptxSprites.cpp
 )

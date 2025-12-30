@@ -30,9 +30,8 @@ namespace P64::Comp
     auto asset = (T3DModel*)AssetManager::getByIndex(assetIdx);
     auto it = t3d_model_iter_create(asset, (T3DModelChunkType)'0');
     if(t3d_model_iter_next(&it)) {
-      data->meshInstance.pos = {};
-      data->meshInstance.rot = {};
-      data->meshInstance.scale = {1.0f, 1.0f, 1.0f};
+      data->meshInstance.pos = obj.pos;
+      data->meshInstance.scale = obj.scale;
       data->meshInstance.mesh = Coll::Mesh::load(it.chunk);
       scene.getCollision().registerMesh(&data->meshInstance);
     }

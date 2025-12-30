@@ -27,7 +27,6 @@ namespace P64::Comp
 
     static void update(Object& obj, CollMesh* data, float deltaTime) {
       data->meshInstance.pos = obj.pos;
-      //data->meshInstance.rot = {};
       data->meshInstance.scale = obj.scale;
     }
   };

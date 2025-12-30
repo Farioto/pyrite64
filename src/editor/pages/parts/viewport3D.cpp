@@ -107,7 +107,7 @@ bool ConnectedToggleButton(const char* text, bool active, bool first, bool last,
 
   void iterateObjects(
     Project::Object& parent,
-    std::function<void(Project::Object&, Project::Component::Entry&)> callback
+    std::function<void(Project::Object&, Project::Component::Entry*)> callback
   )
   {
     for(auto& child : parent.children)
@@ -121,8 +121,9 @@ bool ConnectedToggleButton(const char* text, bool active, bool first, bool last,
       }
 
       for(auto &comp : srcObj->components) {
-        callback(*child, comp);
+        callback(*child, &comp);
       }
+      callback(*child, nullptr);
 
       // only groups can have children
       if(!parent.isGroup){ assert(parent.children.empty()); }
@@ -200,31 +201,38 @@ void Editor::Viewport3D::onRenderPass(SDL_GPUCommandBuffer* cmdBuff, Renderer::S
   SDL_PushGPUVertexUniformData(cmdBuff, 0, &uniGlobal, sizeof(uniGlobal));
   auto &rootObj = scene->getRootObject();
 
-  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry &comp) {
-    auto &def = Project::Component::TABLE[comp.id];
+  bool hadDraw = false;
+  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry *comp) {
+    if(!comp)
+    {
+      if(!hadDraw) {
+        Utils::Mesh::addSprite(*getSprites(), obj.pos.resolve(obj.propOverrides), obj.uuid, 2);
+      }
+      hadDraw = false;
+      return;
+    }
+    auto &def = Project::Component::TABLE[comp->id];
 
     // @TODO: use flag in component
-    if(!showCollMesh && comp.id == 4)return;
-    if(!showCollObj && comp.id == 5)return;
+    if(!showCollMesh && comp->id == 4)return;
+    if(!showCollObj && comp->id == 5)return;
 
     if(def.funcDraw3D) {
-      def.funcDraw3D(obj, comp, *this, cmdBuff, renderPass3D);
+      def.funcDraw3D(obj, *comp, *this, cmdBuff, renderPass3D);
+      hadDraw = true;
     }
-
-    /*if(child->components.empty()) {
-      Utils::Mesh::addSprite(*getSprites(), child->pos, child->uuid, 2);
-    }*/
   });
 
-  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry &comp) {
-    auto &def = Project::Component::TABLE[comp.id];
+  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry *comp) {
+    if(!comp)return;
+    auto &def = Project::Component::TABLE[comp->id];
 
     // @TODO: use flag in component
-    if(!showCollMesh && comp.id == 4)return;
-    if(!showCollObj && comp.id == 5)return;
+    if(!showCollMesh && comp->id == 4)return;
+    if(!showCollObj && comp->id == 5)return;
 
     if(def.funcDrawPost3D) {
-      def.funcDrawPost3D(obj, comp, *this, cmdBuff, renderPass3D);
+      def.funcDrawPost3D(obj, *comp, *this, cmdBuff, renderPass3D);
     }
   });
 
@@ -265,9 +273,10 @@ void Editor::Viewport3D::draw()
   ctx.scene->clearLights();
   auto &rootObj = scene->getRootObject();
 
-  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry &comp) {
-    auto &def = Project::Component::TABLE[comp.id];
-    if(def.funcUpdate)def.funcUpdate(obj, comp);
+  iterateObjects(rootObj, [&](Project::Object &obj, Project::Component::Entry *comp) {
+    if(!comp)return;
+    auto &def = Project::Component::TABLE[comp->id];
+    if(def.funcUpdate)def.funcUpdate(obj, *comp);
   });
 
   fb.setClearColor(scene->conf.clearColor);

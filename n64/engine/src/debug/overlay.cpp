@@ -3,15 +3,17 @@
 * @license MIT
 */
 #include "overlay.h"
+
 #include "debug/debugDraw.h"
 #include "scene/scene.h"
 #include "vi/swapChain.h"
-#include "lib/memory.h"
-#include <vector>
-#include <string>
-
 #include "audio/audioManager.h"
 #include "lib/matrixManager.h"
+#include "lib/memory.h"
+
+#include <vector>
+#include <string>
+#include <filesystem>
 
 namespace {
   constexpr uint32_t SCREEN_HEIGHT = 240;
@@ -21,10 +23,11 @@ namespace {
   constexpr float barHeight = 3.0f;
   constexpr float barRefTimeMs = 1000.0f / 30.0f; // FPS
 
-  constexpr color_t COLOR_BVH{0,0xAA,0x22, 0xFF};
-  constexpr color_t COLOR_COLL{0x22,0xFF,0, 0xFF};
+  constexpr color_t COLOR_BVH{ 0x00, 0xAA, 0x22, 0xFF};
+  constexpr color_t COLOR_COLL{0x22,0xFF,0x00, 0xFF};
   constexpr color_t COLOR_ACTOR_UPDATE{0xAA,0,0, 0xFF};
-  constexpr color_t COLOR_CULL{0xFF,0x11,0x99, 0xFF};
+  constexpr color_t COLOR_SCENE_DRAW{0xFF,0x80,0x10, 0xFF};
+  constexpr color_t COLOR_AUDIO{0x43, 0x52, 0xFF, 0xFF};
 
   enum class MenuItemType : uint8_t {
     BOOL,
@@ -55,7 +58,7 @@ namespace {
 
   float frameTimeScale = 2;
 
-  std::vector<std::string> sceneNames{"tst0", "tst1", "tst2"};
+  std::vector<std::string> sceneNames{};
 
   float ticksToOffset(uint32_t ticks) {
     float timeOffX = TICKS_TO_US((uint64_t)ticks) / 1000.0f;
@@ -72,12 +75,13 @@ namespace {
   }
 
   bool showCollMesh = false;
-  bool showCollSpheres = false;
+  bool showCollBCS = false;
   bool matrixDebug = false;
   bool showMenuScene = false;
   bool showFrameTime = false;
 
   bool isVisible = true;
+  bool didInit = false;
 }
 
 void Debug::Overlay::toggle()
@@ -85,9 +89,23 @@ void Debug::Overlay::toggle()
   isVisible = !isVisible;
 }
 
+namespace fs = std::filesystem;
+
 void Debug::Overlay::init()
 {
+  sceneNames = {};
 
+  dir_t dir{};
+  const char* const BASE_DIR = "rom:/p64";
+  int res = dir_findfirst(BASE_DIR, &dir);
+  while(res == 0)
+  {
+    std::string name{dir.d_name};
+    if(name[0] == 's' && name.length() == 5) {
+      sceneNames.push_back(name.substr(1));
+    }
+    res = dir_findnext(BASE_DIR, &dir);
+  }
 }
 
 void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
@@ -98,6 +116,12 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
     Debug::printf(260, 24, "%.2f\n", (double)P64::VI::SwapChain::getFPS());
     return;
   }
+
+  if(!didInit) {
+    init();
+    didInit = true;
+  }
+
   Debug::draw(static_cast<uint16_t*>(surf->buffer));
 
   auto &collScene = scene.getCollision();
@@ -109,7 +133,7 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
   if(menu.items.empty()) {
     addActionItem(menu, "Scenes", []([[maybe_unused]] auto &item) { showMenuScene = true; });
 
-    addBoolItem(menu, "Spheres", showCollSpheres);
+    addBoolItem(menu, "Coll-Obj", showCollBCS);
     addBoolItem(menu, "Coll-Tri", showCollMesh);
     addBoolItem(menu, "Memory", matrixDebug);
     addBoolItem(menu, "Frames", showFrameTime);
@@ -121,10 +145,7 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
     for(auto &sceneName : sceneNames)
     {
       addActionItem(menuScenes, sceneName.c_str(), [&scene, sceneName]([[maybe_unused]] auto &item) {
-        uint32_t sceneId = 0;
-        for(int i=0; i<4; ++i) {
-          sceneId |= sceneName[i] << (24 - i * 8);
-        }
+        uint32_t sceneId = std::stoi(sceneName.substr(1));
         P64::SceneManager::load(sceneId);
       });
     }
@@ -144,7 +165,7 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
     item.onChange(item);
   }
 
-  collScene.debugDraw(showCollMesh, showCollSpheres);
+  collScene.debugDraw(showCollMesh, showCollBCS);
 
   float posX = 16;
   float posY = 130;
@@ -185,16 +206,16 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
   sys_get_heap_stats(&heap_stats);
 
   rdpq_set_prim_color(COLOR_BVH);
-  posX = Debug::printf(posX, posY, "BVH:%.2f", (double)TICKS_TO_US(collScene.ticksBVH) / 1000.0) + 6;
+  posX = Debug::printf(posX, posY, "Coll:%.2f", (double)TICKS_TO_US(collScene.ticksBVH) / 1000.0) + 4;
   rdpq_set_prim_color(COLOR_COLL);
-  posX = Debug::printf(posX, posY, "Coll:%.2f", (double)TICKS_TO_US(collScene.ticks - collScene.ticksBVH) / 1000.0) + 6;
-  posX = Debug::printf(posX, posY, "Ray:%d", collScene.raycastCount) + 8;
+  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(collScene.ticks - collScene.ticksBVH) / 1000.0) + 8;
+  //posX = Debug::printf(posX, posY, "Ray:%d", collScene.raycastCount) + 8;
   rdpq_set_prim_color(COLOR_ACTOR_UPDATE);
-  //posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(scene.ticksActorUpdate) / 1000.0) + 8;
-  rdpq_set_prim_color(COLOR_CULL);
-  //Debug::printf(posX, posY + 9, "%.2f", (double)TICKS_TO_US(scene.ticksCull) / 1000.0);
-  //posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(scene.getAudio().ticks) / 1000.0) + 8;
-
+  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(scene.ticksActorUpdate) / 1000.0) + 8;
+  rdpq_set_prim_color(COLOR_SCENE_DRAW);
+  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(scene.ticksDraw) / 1000.0) + 8;
+  rdpq_set_prim_color(COLOR_AUDIO);
+  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(P64::AudioManager::ticksUpdate) / 1000.0) + 8;
 
   rdpq_set_prim_color({0xFF,0xFF,0xFF, 0xFF});
 
@@ -269,7 +290,8 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
   float timeCollBVH = usToWidth(TICKS_TO_US(collScene.ticksBVH));
   float timeColl = usToWidth(TICKS_TO_US(collScene.ticks - collScene.ticksBVH));
   float timeActorUpdate = usToWidth(TICKS_TO_US(scene.ticksActorUpdate));
-  //float timeCull = usToWidth(TICKS_TO_US(scene.getAudio().ticks));
+  float timeSceneDraw = usToWidth(TICKS_TO_US(scene.ticksDraw));
+  float timeAudio = usToWidth(TICKS_TO_US(P64::AudioManager::ticksUpdate));
   float timeSelf = usToWidth(TICKS_TO_US(ticksSelf));
 
   rdpq_set_mode_fill({0,0,0, 0xFF});
@@ -283,8 +305,10 @@ void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
   rdpq_fill_rectangle(posX, posY, posX + timeColl, posY + barHeight); posX += timeColl;
   rdpq_set_fill_color(COLOR_ACTOR_UPDATE);
   rdpq_fill_rectangle(posX, posY, posX + timeActorUpdate, posY + barHeight); posX += timeActorUpdate;
-  rdpq_set_fill_color(COLOR_CULL);
-  //rdpq_fill_rectangle(posX, posY, posX + timeCull, posY + barHeight); posX += timeCull;
+  rdpq_set_fill_color(COLOR_SCENE_DRAW);
+  rdpq_fill_rectangle(posX, posY, posX + timeSceneDraw, posY + barHeight); posX += timeSceneDraw;
+  rdpq_set_fill_color(COLOR_AUDIO);
+  rdpq_fill_rectangle(posX, posY, posX + timeAudio, posY + barHeight); posX += timeAudio;
   rdpq_set_fill_color({0xFF,0xFF,0xFF, 0xFF});
   rdpq_fill_rectangle(24 + barWidth - timeSelf, posY, 24 + barWidth, posY + barHeight);
 

@@ -89,9 +89,11 @@ void P64::Scene::update(float deltaTime)
 
   // reset metrics
   ticksActorUpdate = 0;
+  ticksDraw = 0;
   collScene.ticks = 0;
   collScene.ticksBVH = 0;
   collScene.raycastCount = 0;
+  AudioManager::ticksUpdate = 0;
 
   AudioManager::update();
 
@@ -174,6 +176,7 @@ void P64::Scene::update(float deltaTime)
 
 void P64::Scene::draw([[maybe_unused]] float deltaTime)
 {
+  ticksDraw = get_ticks();
   renderPipeline->preDraw();
   DrawLayer::draw(0);
 
@@ -226,6 +229,7 @@ void P64::Scene::draw([[maybe_unused]] float deltaTime)
   DrawLayer::useDefault();
 
   renderPipeline->draw();
+  ticksDraw = get_ticks() - ticksDraw;
 }
 
 void P64::Scene::onObjectCollision(const Coll::CollEvent &event)

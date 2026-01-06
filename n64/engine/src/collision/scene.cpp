@@ -30,19 +30,20 @@ namespace {
     return inst.invRot * res * inst.invScale;
   }
   fm_vec3_t outOfLocalSpace(const Coll::MeshInstance &inst, const fm_vec3_t &p) {
+    /*if(inst.object->rot.w == 1.0f) {
+      return (p * inst.object->scale) + inst.object->pos;
+    }*/
     return inst.object->rot * (p * inst.object->scale) + inst.object->pos;
   }
 }
 
 Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float deltaTime) {
-  uint64_t ticksStart = get_ticks();
-  float len2 = fm_vec3_len2(&velocity);
+  float len = fm_vec3_len(&velocity) * deltaTime;
 
   bool isBox = bcs.flags & BCSFlags::SHAPE_BOX;
 
-  int steps = (int)(len2 * 0.8f);
-  if(steps <= 0)steps = 1;
-  if(steps > 10)steps = 10;
+  int steps = (int)(len * 2);
+  steps = P64::Math::clamp(steps, 1, 8);
 
   auto velocityStep = velocity * (deltaTime / steps);
 
@@ -116,12 +117,12 @@ Coll::CollInfo Coll::Scene::vsBCS(BCS &bcs, const fm_vec3_t &velocity, float del
     } // meshes
   } // steps
 
-  ticks += get_ticks() - ticksStart;
   return res;
 }
 
 void Coll::Scene::update(float deltaTime)
 {
+  uint64_t ticksStart = get_ticks();
   auto &gameScene = P64::SceneManager::getCurrent();
 
   for(auto &inst : meshes) {
@@ -142,7 +143,7 @@ void Coll::Scene::update(float deltaTime)
 
     // Static/Triangle mesh collision
     // @TODO: use r/w mask
-    bool checkColl = true;//bcsA->maskRead & Mask::TRI_MESH;
+    bool checkColl = bcsA->isSolid();//bcsA->maskRead & Mask::TRI_MESH;
 
     if(checkColl) {
       auto res = vsBCS(*bcsA, bcsA->velocity, deltaTime);
@@ -195,6 +196,7 @@ void Coll::Scene::update(float deltaTime)
 
     bcsA->obj->pos = bcsA->center - bcsA->parentOffset;
   }
+  ticks += get_ticks() - ticksStart;
 }
 
 Coll::RaycastRes Coll::Scene::raycastFloor(const fm_vec3_t &pos) {

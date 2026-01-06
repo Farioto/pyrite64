@@ -46,6 +46,8 @@ namespace P64::Audio
  */
 namespace P64::AudioManager
 {
+  extern uint64_t ticksUpdate;
+
   Audio::Handle play2D(wav64_t *audio);
 
   inline Audio::Handle play2D(uint32_t assetId) {

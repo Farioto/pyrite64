@@ -41,6 +41,8 @@ namespace
 
 namespace P64::AudioManager
 {
+  constinit uint64_t ticksUpdate{0};
+
   void init() {
     audio_init(32000, 3);
     mixer_init(CHANNEL_COUNT);
@@ -49,6 +51,7 @@ namespace P64::AudioManager
 
   void update()
   {
+    auto ticks = get_ticks();
     mixer_try_play();
     for(uint32_t i=0; i<CHANNEL_COUNT; ++i) {
       if(slots[i].audio && !mixer_ch_playing((int)i))
@@ -59,6 +62,7 @@ namespace P64::AudioManager
         slots[i].audio = nullptr;
       }
     }
+    ticksUpdate += get_ticks() - ticks;
   }
 
   void destroy() {

@@ -6,7 +6,7 @@
 
 #include "bigtex/bigtex.h"
 #include "bigtex/memory.h"
-#include "debug/debugDraw.h"
+#include "../debug/overlay.h"
 #include "renderer/drawLayer.h"
 #include "scene/scene.h"
 #include "vi/swapChain.h"
@@ -49,7 +49,7 @@ void P64::RenderPipelineBigTex::init()
     currSurf = surf;
     rdpq_attach(surf, BigTex::getZBuffer());
     scene.draw(VI::SwapChain::getDeltaTime());
-    Debug::draw(static_cast<uint16_t*>(surf->buffer));
+    Debug::Overlay::draw(scene, surf);
     rdpq_detach_cb((void(*)(void*))((void*)done), (void*)fbIndex);
   });
 }

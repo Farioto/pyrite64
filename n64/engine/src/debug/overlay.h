@@ -9,34 +9,9 @@
 
 #include "scene/scene.h"
 
-namespace Debug
+namespace Debug::Overlay
 {
-  class Overlay
-  {
-    public:
-      enum class MenuItemType : uint8_t {
-        BOOL,
-        INT,
-        ACTION
-      };
-      struct MenuItem {
-        const char *text{};
-        int value{};
-        MenuItemType type{};
-        std::function<void(MenuItem&)> onChange{};
-      };
-
-      struct Menu {
-        std::vector<MenuItem> items{};
-        uint32_t currIndex;
-      };
-
-    private:
-      Menu menu{};
-      Menu menuScenes{};
-
-    public:
-      void setEnabled(bool enabled);
-      void draw(P64::Scene &scene, int triCount, float deltaTime);
-  };
+  void toggle();
+  void init();
+  void draw(P64::Scene &scene, surface_t* surf);
 }

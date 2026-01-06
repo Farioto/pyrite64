@@ -3,7 +3,7 @@
 * @license MIT
 */
 #include "renderer/pipelineHDRBloom.h"
-#include "debug/debugDraw.h"
+#include "../debug/overlay.h"
 #include "hdr/rspHDR.h"
 #include "lib/memory.h"
 #include "renderer/drawLayer.h"
@@ -48,7 +48,7 @@ void P64::RenderPipelineHDRBloom::init()
     rdpq_attach(surf, &Mem::allocDepthBuffer(state.screenSize[0], state.screenSize[1]));
     fb = surf;
     scene.draw(VI::SwapChain::getDeltaTime());
-    Debug::draw(static_cast<uint16_t*>(surf->buffer));
+    Debug::Overlay::draw(scene, surf);
     rdpq_detach_cb((void(*)(void*))((void*)done), (void*)fbIndex);
   });
 }

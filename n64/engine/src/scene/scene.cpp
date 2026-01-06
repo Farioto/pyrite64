@@ -16,6 +16,7 @@
 #include "assets/assetManager.h"
 #include "audio/audioManager.h"
 #include "../audio/audioManagerPrivate.h"
+#include "../debug/overlay.h"
 
 #include "renderer/pipeline.h"
 #include "renderer/pipelineHDRBloom.h"
@@ -28,7 +29,6 @@
 
 namespace
 {
-  bool collDebugDraw = false;
   uint16_t nextId = 0xFF;
 }
 
@@ -84,8 +84,14 @@ void P64::Scene::update(float deltaTime)
 {
   joypad_poll();
   if(joypad_get_buttons_pressed(JOYPAD_PORT_1).l) {
-    collDebugDraw = !collDebugDraw;
+    Debug::Overlay::toggle();
   }
+
+  // reset metrics
+  ticksActorUpdate = 0;
+  collScene.ticks = 0;
+  collScene.ticksBVH = 0;
+  collScene.raycastCount = 0;
 
   AudioManager::update();
 
@@ -109,6 +115,7 @@ void P64::Scene::update(float deltaTime)
 
   GlobalScript::callHooks(GlobalScript::HookType::SCENE_UPDATE);
 
+  ticksActorUpdate = get_ticks();
   for(auto obj : objects)
   {
     if(!obj->isEnabled())continue;
@@ -122,11 +129,13 @@ void P64::Scene::update(float deltaTime)
     }
   }
 
-  collScene.update(deltaTime);
-
   for(auto &cam : cameras) {
     cam->update(deltaTime);
   }
+
+  ticksActorUpdate = get_ticks() - ticksActorUpdate;
+
+  collScene.update(deltaTime);
 
   for(auto &obj : pendingObjDelete)
   {
@@ -213,20 +222,10 @@ void P64::Scene::draw([[maybe_unused]] float deltaTime)
   }
 
   DrawLayer::use(conf.layerSetup.layerCount3D + conf.layerSetup.layerCountPtx);
-    Debug::printStart();
-    Debug::printf(260, 16, "%.2f\n", (double)VI::SwapChain::getFPS());
-
-    heap_stats_t heap{};
-    sys_get_heap_stats(&heap);
-    Debug::printf(260, 16+9, "%.4f\n", heap.used / 1024.0);
-
-    Debug::printf(260, 16+18, "%d\n", objects.size());
-
     GlobalScript::callHooks(GlobalScript::HookType::SCENE_DRAW_2D);
   DrawLayer::useDefault();
 
   renderPipeline->draw();
-  collScene.debugDraw(collDebugDraw, collDebugDraw);
 }
 
 void P64::Scene::onObjectCollision(const Coll::CollEvent &event)

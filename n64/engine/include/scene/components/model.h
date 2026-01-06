@@ -28,20 +28,16 @@ namespace P64::Comp
 
     static void initDelete([[maybe_unused]] Object& obj, Model* data, uint16_t* initData);
 
-    static void update(Object& obj, Model* data, [[maybe_unused]] float deltaTime) {
-      auto mat = data->matFP.getNext();
-      t3d_mat4fp_from_srt(mat,
-        obj.scale,
-        obj.rot,
-        obj.pos
-      );
-    }
+    static void update(Object& obj, Model* data, [[maybe_unused]] float deltaTime) {}
 
     static void draw([[maybe_unused]] Object& obj, Model* data, [[maybe_unused]] float deltaTime)
     {
+      auto mat = data->matFP.getNext();
+      t3d_mat4fp_from_srt(mat, obj.scale, obj.rot, obj.pos);
+
       if(data->layerIdx)DrawLayer::use3D(data->layerIdx);
 
-      t3d_matrix_set(data->matFP.get(), true);
+      t3d_matrix_set(mat, true);
       rspq_block_run(data->model->userBlock);
 
       if(data->layerIdx)DrawLayer::useDefault();

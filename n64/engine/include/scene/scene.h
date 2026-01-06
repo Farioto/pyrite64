@@ -94,6 +94,8 @@ namespace P64
       void loadScene();
 
     public:
+      uint64_t ticksActorUpdate{0};
+
       explicit Scene(uint16_t sceneId, Scene** ref);
       ~Scene();
 
@@ -165,6 +167,8 @@ namespace P64
       void removeObject(Object &obj);
 
       Object* getObjectById(uint16_t objId) const;
+
+      uint32_t getObjectCount() const { return objects.size(); }
 
       /**
        * Iterates over all direct children of the given parent object ID.

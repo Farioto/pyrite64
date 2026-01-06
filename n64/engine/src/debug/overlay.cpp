@@ -26,6 +26,26 @@ namespace {
   constexpr color_t COLOR_ACTOR_UPDATE{0xAA,0,0, 0xFF};
   constexpr color_t COLOR_CULL{0xFF,0x11,0x99, 0xFF};
 
+  enum class MenuItemType : uint8_t {
+    BOOL,
+    INT,
+    ACTION
+  };
+  struct MenuItem {
+    const char *text{};
+    int value{};
+    MenuItemType type{};
+    std::function<void(MenuItem&)> onChange{};
+  };
+
+  struct Menu {
+    std::vector<MenuItem> items{};
+    uint32_t currIndex;
+  };
+
+  constinit Menu menu{};
+  constinit Menu menuScenes{};
+  
   uint64_t ticksSelf = 0;
 
   constexpr float usToWidth(long timeUs) {
@@ -42,13 +62,13 @@ namespace {
     return timeOffX * frameTimeScale;
   };
 
-  void addBoolItem(Debug::Overlay::Menu &menu, const char* name, bool &value) {
-    menu.items.push_back({name, value, Debug::Overlay::MenuItemType::BOOL, [&value](auto &item) {
+  void addBoolItem(Menu &m, const char* name, bool &value) {
+    m.items.push_back({name, value, MenuItemType::BOOL, [&value](auto &item) {
       value = item.value;
     }});
   }
-  void addActionItem(Debug::Overlay::Menu &menu, const char* name, std::function<void(Debug::Overlay::MenuItem&)> action) {
-    menu.items.push_back({name, 0, Debug::Overlay::MenuItemType::ACTION, action});
+  void addActionItem(Menu &m, const char* name, std::function<void(MenuItem&)> action) {
+    m.items.push_back({name, 0, MenuItemType::ACTION, action});
   }
 
   bool showCollMesh = false;
@@ -56,9 +76,30 @@ namespace {
   bool matrixDebug = false;
   bool showMenuScene = false;
   bool showFrameTime = false;
+
+  bool isVisible = true;
 }
 
-void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
+void Debug::Overlay::toggle()
+{
+  isVisible = !isVisible;
+}
+
+void Debug::Overlay::init()
+{
+
+}
+
+void Debug::Overlay::draw(P64::Scene &scene, surface_t* surf)
+{
+  if(!isVisible)
+  {
+    Debug::printStart();
+    Debug::printf(260, 24, "%.2f\n", (double)P64::VI::SwapChain::getFPS());
+    return;
+  }
+  Debug::draw(static_cast<uint16_t*>(surf->buffer));
+
   auto &collScene = scene.getCollision();
   uint64_t newTicksSelf = get_ticks();
 
@@ -99,7 +140,7 @@ void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
   if(btn.d_right)currMenu->items[currMenu->currIndex].value++;
   if(btn.d_left || btn.d_right) {
     auto &item = currMenu->items[currMenu->currIndex];
-    if(item.type == Overlay::MenuItemType::BOOL)item.value = (item.value < 0) ? 1 : (item.value % 2);
+    if(item.type == MenuItemType::BOOL)item.value = (item.value < 0) ? 1 : (item.value % 2);
     item.onChange(item);
   }
 
@@ -144,10 +185,10 @@ void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
   sys_get_heap_stats(&heap_stats);
 
   rdpq_set_prim_color(COLOR_BVH);
-  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(collScene.ticksBVH) / 1000.0) + 8;
+  posX = Debug::printf(posX, posY, "BVH:%.2f", (double)TICKS_TO_US(collScene.ticksBVH) / 1000.0) + 6;
   rdpq_set_prim_color(COLOR_COLL);
-  posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(collScene.ticks - collScene.ticksBVH) / 1000.0) + 2;
-  posX = Debug::printf(posX, posY, ":%d", collScene.raycastCount) + 8;
+  posX = Debug::printf(posX, posY, "Coll:%.2f", (double)TICKS_TO_US(collScene.ticks - collScene.ticksBVH) / 1000.0) + 6;
+  posX = Debug::printf(posX, posY, "Ray:%d", collScene.raycastCount) + 8;
   rdpq_set_prim_color(COLOR_ACTOR_UPDATE);
   //posX = Debug::printf(posX, posY, "%.2f", (double)TICKS_TO_US(scene.ticksActorUpdate) / 1000.0) + 8;
   rdpq_set_prim_color(COLOR_CULL);
@@ -157,10 +198,11 @@ void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
 
   rdpq_set_prim_color({0xFF,0xFF,0xFF, 0xFF});
 
-  posX = 24 + barWidth - 120;
+  posX = surf->width - 64;
   //posX = Debug::printf(posX, posY, "A:%d/%d", scene.activeActorCount, scene.drawActorCount) + 8;
-  posX = Debug::printf(posX, posY, "T:%d", triCount) + 8;
-  Debug::printf(posX, posY, "H:%d", heap_stats.used / 1024);
+  // posX = Debug::printf(posX, posY, "T:%d", triCount) + 8;
+  Debug::printf(posX, posY, "H:%dkb", heap_stats.used / 1024);
+  Debug::printf(posX, posY+8, "O:%d\n", scene.getObjectCount());
 
   posX = 24;
 
@@ -226,7 +268,7 @@ void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
   // Performance graph
   float timeCollBVH = usToWidth(TICKS_TO_US(collScene.ticksBVH));
   float timeColl = usToWidth(TICKS_TO_US(collScene.ticks - collScene.ticksBVH));
-  //float timeActorUpdate = usToWidth(TICKS_TO_US(scene.ticksActorUpdate));
+  float timeActorUpdate = usToWidth(TICKS_TO_US(scene.ticksActorUpdate));
   //float timeCull = usToWidth(TICKS_TO_US(scene.getAudio().ticks));
   float timeSelf = usToWidth(TICKS_TO_US(ticksSelf));
 
@@ -240,7 +282,7 @@ void Debug::Overlay::draw(P64::Scene &scene, int triCount, float deltaTime) {
   rdpq_set_fill_color(COLOR_COLL);
   rdpq_fill_rectangle(posX, posY, posX + timeColl, posY + barHeight); posX += timeColl;
   rdpq_set_fill_color(COLOR_ACTOR_UPDATE);
-  //rdpq_fill_rectangle(posX, posY, posX + timeActorUpdate, posY + barHeight); posX += timeActorUpdate;
+  rdpq_fill_rectangle(posX, posY, posX + timeActorUpdate, posY + barHeight); posX += timeActorUpdate;
   rdpq_set_fill_color(COLOR_CULL);
   //rdpq_fill_rectangle(posX, posY, posX + timeCull, posY + barHeight); posX += timeCull;
   rdpq_set_fill_color({0xFF,0xFF,0xFF, 0xFF});

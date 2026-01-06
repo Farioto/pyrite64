@@ -2,6 +2,7 @@
 * @copyright 2025 - Max Bebök
 * @license MIT
 */
+#include "../debug/overlay.h"
 #include "renderer/pipeline.h"
 #include "debug/debugDraw.h"
 #include "lib/memory.h"
@@ -36,7 +37,8 @@ void P64::RenderPipelineDefault::init()
   VI::SwapChain::setDrawPass([this](surface_t *surf, uint32_t fbIndex, auto done) {
     rdpq_attach(surf, &Mem::allocDepthBuffer(state.screenSize[0], state.screenSize[1]));
     scene.draw(VI::SwapChain::getDeltaTime());
-    Debug::draw(static_cast<uint16_t*>(surf->buffer));
+
+    Debug::Overlay::draw(scene, surf);
     rdpq_detach_cb((void(*)(void*))((void*)done), (void*)fbIndex);
   });
 }

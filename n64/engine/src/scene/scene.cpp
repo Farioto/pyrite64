@@ -334,3 +334,14 @@ void P64::Scene::setGroupEnabled(uint16_t groupId, bool enabled) const
     }
   }
 }
+
+P64::Lighting & P64::Scene::startLightingOverride(bool copyExisting)
+{
+  lightingTemp = copyExisting ? lighting : Lighting{};
+  return lightingTemp;
+}
+
+void P64::Scene::endLightingOverride()
+{
+  lighting.apply();
+}

@@ -21,7 +21,6 @@ namespace P64
   {
     private:
       uint32_t lightCount{0};
-      Light lights[MAX_LIGHTS]{};
 
       void addLight(const Light& l) {
         if(lightCount >= MAX_LIGHTS)return;
@@ -29,8 +28,14 @@ namespace P64
       }
 
     public:
+      Light lights[MAX_LIGHTS]{};
+
       void reset() {
         lightCount = 0;
+      }
+
+      uint32_t getLightCount() const {
+        return lightCount;
       }
 
       void apply() const;
@@ -45,7 +50,7 @@ namespace P64
 
       void addPointLight(const color_t col, const fm_vec3_t& pos, float strength) {
         strength = fmaxf(strength, 0.001f);
-        strength = fminf(strength, 1.0f);
+        //strength = fminf(strength, 1.0f);
         addLight({.dirOrPos = pos, .strength = strength, .color = col});
       }
   };

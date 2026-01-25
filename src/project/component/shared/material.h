@@ -30,12 +30,18 @@ namespace Project::Component::Shared
     PROP_BOOL(setLighting);
     PROP_BOOL(lighting);
 
+    PROP_BOOL(setFresnel);
+    PROP_S32(fresnel);
+    PROP_VEC4(fresnelColor);
+
     nlohmann::json serialize() const {
       return Utils::JSON::Builder{}
         .set(setDepth).set(depth)
         .set(setPrim).set(prim)
         .set(setEnv).set(env)
         .set(setLighting).set(lighting)
+        .set(setFresnel).set(fresnel)
+        .set(fresnelColor)
         .doc;
     }
 
@@ -48,6 +54,9 @@ namespace Project::Component::Shared
       Utils::JSON::readProp(doc, env, {1, 1, 1, 1});
       Utils::JSON::readProp(doc, setLighting, false);
       Utils::JSON::readProp(doc, lighting, true);
+      Utils::JSON::readProp(doc, setFresnel, false);
+      Utils::JSON::readProp(doc, fresnel, 0);
+      Utils::JSON::readProp(doc, fresnelColor, {1,1,1,1});
     }
 
     void build(Utils::BinaryFile &file, Object& obj);

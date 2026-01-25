@@ -89,6 +89,7 @@ namespace P64
       ObjectEventQueue eventQueue[2]{};
 
       Lighting lighting{};
+      Lighting lightingTemp{};
 
       SceneConf conf{};
       uint16_t id;
@@ -200,6 +201,10 @@ namespace P64
       void setGroupEnabled(uint16_t groupId, bool enabled) const;
 
       [[nodiscard]] Lighting& getLighting() { return lighting; }
+
+      [[nodiscard]] Lighting& startLightingOverride(bool copyExisting = true);
+      void endLightingOverride();
+
   };
 }
 

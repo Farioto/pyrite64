@@ -12,6 +12,7 @@
 
 #define __LIBDRAGON_N64SYS_H 1
 #define PhysicalAddr(a) (uint64_t)(a)
+#include "../graph/nodes/nodeObjDel.h"
 #include "include/rdpq_macros.h"
 #include "include/rdpq_mode.h"
 
@@ -69,28 +70,14 @@ std::shared_ptr<Project::Object> Project::Scene::addObject(std::string &objJson)
 
   auto obj = std::make_shared<Object>(root);
   obj->deserialize(this, json);
-  obj->id = getFreeObjectId();
-
-  auto oldName = obj->name;
-  // check if it ends in a ")", and the remove last "(id)"
-  if (oldName.size() > 4 && oldName[oldName.size() - 1] == ')') {
-    auto pos = oldName.find_last_of('(');
-    if (pos != std::string::npos) {
-      oldName = oldName.substr(0, pos - 1);
-    }
-  }
-
-  obj->name = oldName +  " ("+std::to_string(obj->id)+")";
-  obj->uuid = Utils::Hash::sha256_64bit(obj->name + std::to_string(rand()));
-  obj->pos.value += glm::vec3{10.0f, 0.0f, 0.0f};
   return addObject(root, obj);
 }
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
   auto child = std::make_shared<Object>(parent);
-  child->id = getFreeObjectId();
-  child->name = "New Object ("+std::to_string(child->id)+")";
-  child->uuid = Utils::Hash::sha256_64bit(child->name + std::to_string(rand()));
+  child->id = 0;
+  child->name = "New Object";
+  child->uuid = 0;
   child->scale.value = {DEF_MODEL_SCALE, DEF_MODEL_SCALE, DEF_MODEL_SCALE};
   child->rot.value = glm::identity<glm::quat>();
   return addObject(parent, child);
@@ -98,7 +85,19 @@ std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
 
 std::shared_ptr<Project::Object> Project::Scene::addObject(Object&parent, std::shared_ptr<Object> obj) {
   parent.children.push_back(obj);
-  objectsMap[obj->uuid] = obj;
+
+  auto setChildUUIDs = [this](const std::shared_ptr<Object> &objChild, auto& setChildUIDsRef) -> void
+  {
+    objChild->id = getFreeObjectId();
+    objChild->uuid = Utils::Hash::randomU64();
+
+    objectsMap[objChild->uuid] = objChild;
+    for(const auto& child : objChild->children) {
+      setChildUIDsRef(child, setChildUIDsRef);
+    }
+  };
+
+  setChildUUIDs(obj, setChildUUIDs);
   return obj;
 }
 

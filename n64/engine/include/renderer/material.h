@@ -5,6 +5,8 @@
 #pragma once
 #include <libdragon.h>
 
+#include "scene/scene.h"
+
 namespace P64::Renderer
 {
   struct Material
@@ -15,9 +17,11 @@ namespace P64::Renderer
     constexpr static uint16_t MASK_LIGHT  = 1 << 3;
 
     uint16_t setMask{};
-    uint16_t valFlags{};
+    uint8_t fresnel{};
+    uint8_t valFlags{};
     color_t colorPrim{};
     color_t colorEnv{};
+    color_t colorFresnel{};
 
     [[nodiscard]] constexpr bool doesAnything() const {
       return setMask != 0;
@@ -31,31 +35,8 @@ namespace P64::Renderer
       return valFlags & 0b10;
     }
 
-    void begin()
-    {
-      if(!doesAnything())return;
+    void begin(Object &obj);
 
-      if(setMask & MASK_DEPTH) {
-        rdpq_sync_pipe();
-        rdpq_mode_push();
-        rdpq_mode_zbuf(getDepthRead(), getDepthWrite());
-      }
-      if(setMask & MASK_PRIM) {
-        rdpq_set_prim_color(colorPrim);
-      }
-      if(setMask & MASK_ENV) {
-        rdpq_sync_pipe();
-        rdpq_set_env_color(colorEnv);
-      }
-    }
-
-    void end()
-    {
-      if(setMask & MASK_DEPTH)
-      {
-        rdpq_sync_pipe();
-        rdpq_mode_pop();
-      }
-    }
+    void end();
   };
 }

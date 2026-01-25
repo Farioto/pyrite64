@@ -140,7 +140,7 @@ namespace P64::Comp
 
     if(data->layerIdx)DrawLayer::use3D(data->layerIdx);
 
-    data->material.begin();
+    data->material.begin(obj);
 
     t3d_matrix_set(mat, true);
 

@@ -159,6 +159,11 @@ namespace Project::Component::Model
 
         ImTable::addObjProp("Prim-Color", data.material.prim, &data.material.setPrim);
         ImTable::addObjProp("Env-Color", data.material.env, &data.material.setEnv);
+        ImTable::addObjProp("Fresnel", data.material.fresnel, &data.material.setFresnel);
+        if(data.material.fresnel.resolve(obj.propOverrides) != 0)
+        {
+          ImTable::addObjProp("Fres-Color", data.material.fresnelColor);
+        }
         // ImTable::addObjProp("Lighting", data.material.lighting, &data.material.setLighting);
 
         ImTable::end();

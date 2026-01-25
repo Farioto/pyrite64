@@ -452,6 +452,8 @@ void Editor::Viewport3D::draw()
     glm::vec3 skew{0,0,0};
     glm::vec4 persp{0,0,0,1};
 
+    auto oldPos = obj->pos.resolve(obj->propOverrides);
+
     bool isOverride = false;
     gizmoMat = glm::recompose(
       obj->scale.resolve(obj->propOverrides, &isOverride),
@@ -483,6 +485,16 @@ void Editor::Viewport3D::draw()
           obj->pos.resolve(obj->propOverrides),
           skew, persp
         );
+
+        auto posDiff = obj->pos.resolve(obj->propOverrides) - oldPos;
+        if(posDiff != glm::vec3{0,0,0}) {
+          //printf("Moved obj %s by %f|%f|%f\n", obj->name.c_str(), posDiff.x, posDiff.y, posDiff.z);
+          // move all children too
+          for(auto& child : obj->children)
+          {
+            child->pos.resolve(child->propOverrides) += posDiff;
+          }
+        }
       }
     }
   }

@@ -98,4 +98,5 @@ add_executable(n64_engine
         engine/src/scene/components/nodeGraph.cpp
         engine/include/script/nodeGraph.h
         engine/src/script/nodeGraph.cpp
+        engine/src/renderer/material.cpp
 )

@@ -31,7 +31,7 @@ bool Build::buildNodeGraphAssets(Project::Project &project, SceneCtx &sceneCtx)
     sceneCtx.files.push_back(asset.outPath);
     sceneCtx.graphFunctions.push_back(asset.uuid);
 
-    //if(!assetBuildNeeded(asset, outPath) && std::filesystem::exists(sourceOutPath))continue;
+    if(!assetBuildNeeded(asset, outPath) && std::filesystem::exists(sourceOutPath))continue;
 
     auto json = Utils::FS::loadTextFile(asset.path);
     Project::Graph::Graph graph{};

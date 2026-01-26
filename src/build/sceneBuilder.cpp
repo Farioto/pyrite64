@@ -148,8 +148,8 @@ void Build::buildScene(Project::Project &project, const Project::SceneEntry &sce
   ctx.fileScene.write(objCount);
 
   ctx.fileScene.write<uint8_t>(sc->conf.renderPipeline.value);
-  ctx.fileScene.write<uint8_t>(0); // padding
-  ctx.fileScene.write<uint8_t>(0); // padding
+  ctx.fileScene.write<uint8_t>(sc->conf.frameLimit.value);
+  ctx.fileScene.write<uint8_t>(sc->conf.filter.value);
   ctx.fileScene.write<uint8_t>(0); // padding
 
   // Layer::Setup

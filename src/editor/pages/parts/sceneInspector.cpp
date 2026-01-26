@@ -26,6 +26,14 @@ void Editor::SceneInspector::draw() {
       OPTIONS, 3
     );
 
+    std::vector<ImTable::ComboEntry> fpsEntries{
+      {0, "Unlimited"},
+      {1, "30 / 25"},
+      {2, "20 / 16.6"},
+      {3, "15 / 12.5"},
+    };
+    ImTable::addVecComboBox("FPS-Limit", fpsEntries, scene->conf.frameLimit.value);
+
     ImTable::end();
   }
 
@@ -36,7 +44,7 @@ void Editor::SceneInspector::draw() {
     scene->conf.fbWidth = 320;
     scene->conf.fbHeight = 240;
     scene->conf.fbFormat = 0;
-    scene->conf.clearColor.value = {0,0,0,0};
+    scene->conf.doClearColor.value = false;
     fbDisabled = true;
   }
 
@@ -50,14 +58,26 @@ void Editor::SceneInspector::draw() {
     constexpr const char* const FORMATS[] = {"RGBA16","RGBA32"};
     ImTable::addComboBox("Format", scene->conf.fbFormat, FORMATS, 2);
 
-    ImTable::addColor("Color", scene->conf.clearColor.value, false);
-    scene->conf.clearColor.value.a = 1.0f;
+    if(fbDisabled)ImGui::EndDisabled();
+      ImTable::addColor("Color", scene->conf.clearColor.value, false);
+      scene->conf.clearColor.value.a = 1.0f;
+    if(fbDisabled)ImGui::BeginDisabled();
 
     ImTable::addProp("Clear Color", scene->conf.doClearColor);
 
     if(fbDisabled)ImGui::EndDisabled();
 
     ImTable::addProp("Clear Depth", scene->conf.doClearDepth);
+
+    constexpr std::array<const char*, 5> FILTERS = {
+      "None",
+      "Resample",
+      "Dedither",
+      "Resample / AA",
+      "Resample / AA / Dedither"
+    };
+    ImTable::addComboBox("Filter", scene->conf.filter.value, FILTERS.data(), FILTERS.size());
+
     ImTable::end();
   }
 }

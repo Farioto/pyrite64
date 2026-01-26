@@ -152,9 +152,9 @@ namespace P64
        * @param f callback function, takes Object* as argument
        */
       template<typename F, typename SCENE = Scene>
-      static void iterChildren(uint16_t parentId, F&& f) {
+      void iterChildren(F&& f) {
         const SCENE &sc = getScene();
-        sc.iterObjectChildren(parentId, f);
+        sc.iterObjectChildren(id, f);
       }
 
       /**

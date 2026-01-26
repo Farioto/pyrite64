@@ -33,7 +33,8 @@ bool P64::Coll::AABB::vsRay(const fm_vec3_t &pos, const fm_vec3_t &dir) const
     return tmax >= tmin;
   }*/
 
-  auto invDir = fm_vec3_t{INFINITY,INFINITY,INFINITY};
+  constexpr float DEF_MAX_FLOAT = 10000.0f;
+  auto invDir = fm_vec3_t{DEF_MAX_FLOAT, DEF_MAX_FLOAT, DEF_MAX_FLOAT};
   if(dir.x != 0)invDir.x = 1.0f / dir.x;
   if(dir.y != 0)invDir.y = 1.0f / dir.y;
   if(dir.z != 0)invDir.z = 1.0f / dir.z;

@@ -55,6 +55,31 @@ P64::Scene::Scene(uint16_t sceneId, Scene** ref)
 
   renderPipeline->init();
 
+  switch(conf.filter)
+  {
+    case FILTERS_DISABLED: default:
+      vi_set_dedither(false);
+      vi_set_aa_mode(VI_AA_MODE_NONE);
+    break;
+    case FILTERS_RESAMPLE:
+      vi_set_dedither(false);
+      vi_set_aa_mode(VI_AA_MODE_RESAMPLE);
+    break;
+    case FILTERS_DEDITHER:
+      vi_set_dedither(true);
+      vi_set_aa_mode(VI_AA_MODE_NONE);
+    break;
+    case FILTERS_RESAMPLE_ANTIALIAS:
+      vi_set_dedither(false);
+      vi_set_aa_mode(VI_AA_MODE_RESAMPLE_FETCH_ALWAYS);
+    break;
+    case FILTERS_RESAMPLE_ANTIALIAS_DEDITHER:
+      vi_set_dedither(true);
+      vi_set_aa_mode(VI_AA_MODE_RESAMPLE_FETCH_ALWAYS);
+    break;
+  }
+
+  VI::SwapChain::setFrameSkip(conf.frameSkip);
   VI::SwapChain::start();
 
   loadScene();

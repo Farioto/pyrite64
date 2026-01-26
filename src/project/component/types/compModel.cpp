@@ -113,7 +113,11 @@ namespace Project::Component::Model
       for (auto &layer : scene->conf.layers3D) {
         layerNames.push_back(layer.name.value.c_str());
       }
-      ImTable::addComboBox("Draw-Layer", data.layerIdx.resolve(obj.propOverrides), layerNames);
+
+      ImTable::addObjProp<int32_t>("Draw-Layer", data.layerIdx, [&layerNames](int32_t *layer)
+        {
+          return ImGui::Combo("##", layer, layerNames.data(), layerNames.size());
+        }, nullptr);
 
       ImTable::addObjProp("Culling", data.culling);
 

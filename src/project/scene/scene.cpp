@@ -44,6 +44,8 @@ nlohmann::json Project::SceneConf::serialize() const {
     .set(doClearColor)
     .set(doClearDepth)
     .set(renderPipeline)
+    .set(frameLimit)
+    .set(filter)
     .setArray<LayerConf>("layers3D", layers3D, writeLayer)
     .setArray<LayerConf>("layersPtx", layersPtx, writeLayer)
     .setArray<LayerConf>("layers2D", layers2D, writeLayer);
@@ -276,6 +278,8 @@ void Project::Scene::deserialize(const std::string &data)
     Utils::JSON::readProp(docConf, conf.doClearColor);
     Utils::JSON::readProp(docConf, conf.doClearDepth);
     Utils::JSON::readProp(docConf, conf.renderPipeline);
+    Utils::JSON::readProp(docConf, conf.frameLimit, 0);
+    Utils::JSON::readProp(docConf, conf.filter, 0);
 
     auto readLayer = [](const nlohmann::json &dom) {
       LayerConf layer{};

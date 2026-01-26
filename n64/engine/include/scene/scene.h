@@ -52,7 +52,9 @@ namespace P64
     uint32_t objectCount{};
 
     Pipeline pipeline{};
-    uint8_t padding[3]{};
+    uint8_t frameSkip{};
+    uint8_t filter{};
+    uint8_t padding[1]{};
 
     DrawLayer::Setup layerSetup{};
   };

@@ -12,6 +12,8 @@ namespace
   struct InitData
   {
     uint16_t assetIdx;
+    uint8_t autoRun;
+    uint8_t _padding;
   };
 }
 
@@ -28,5 +30,6 @@ namespace P64::Comp
     new(data) NodeGraph();
     data->inst.load(initData->assetIdx);
     data->inst.object = &obj;
+    data->doUpdate = initData->autoRun != 0;
   }
 }

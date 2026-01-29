@@ -12,7 +12,21 @@ namespace P64::Comp
   {
     static constexpr uint32_t ID = 9;
 
-    P64::NodeGraph::Instance inst{};
+    private:
+      P64::NodeGraph::Instance inst{};
+      uint8_t doUpdate{};
+
+    public:
+      bool run(uint32_t arg0 = 0, uint32_t arg1 = 0)
+      {
+        inst.args[0] = arg0;
+        inst.args[1] = arg1;
+        auto oldState = !doUpdate;
+        doUpdate = true;
+        return oldState == false;
+      }
+      void enable() { doUpdate = true; }
+      void disable() { doUpdate = false; }
 
     static uint32_t getAllocSize([[maybe_unused]] void* initData)
     {
@@ -22,8 +36,9 @@ namespace P64::Comp
     static void initDelete([[maybe_unused]] Object& obj, NodeGraph* data, uint16_t* initData);
 
     static void update(Object& obj, NodeGraph* data, float deltaTime) {
-      // @TODO: make sure that GCC optimizes away the wrapper function!
-      data->inst.update(deltaTime);
+      if(data->doUpdate) {
+        data->inst.update(deltaTime);
+      }
     }
   };
 }

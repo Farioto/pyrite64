@@ -56,7 +56,9 @@ namespace Project::Component::CollMesh
 
     auto modelUUID = data.modelUUID.resolve(obj.propOverrides);
     auto t3dm = ctx.project->getAssets().getEntryByUUID(modelUUID);
-    assert(t3dm);
+    if(!t3dm) {
+      throw std::runtime_error("Component Model: Model UUID not found: " + std::to_string(entry.uuid));
+    }
 
     uint16_t id = 0xDEAD;
     uint8_t flags = 0;
@@ -72,18 +74,15 @@ namespace Project::Component::CollMesh
       char* meshIdxData = (char*)meshes.data();
       modelUUID ^= Utils::Hash::crc64(std::string_view{meshIdxData, meshes.size() * sizeof(uint32_t)});
 
-      printf("===== CollMesh Mesh Filter Applied (%016llX) =====\n", modelUUID);
       auto res = ctx.assetUUIDToIdx.find(modelUUID);
       if (res == ctx.assetUUIDToIdx.end())
       {
         std::unordered_set<std::string> meshNames{};
         for(auto meshIdx : meshes) {
           meshNames.insert(t3dm->t3dmData.models[meshIdx].name);
-          printf(" - %s\n", t3dm->t3dmData.models[meshIdx].name.c_str());
         }
 
         Build::buildT3DCollision(*ctx.project, ctx, meshNames, t3dm->getId(), modelUUID);
-        printf(" => not found!\n");
       }
     }
 

@@ -81,7 +81,7 @@ std::shared_ptr<Project::Object> Project::Scene::addObject(Object &parent) {
   auto child = std::make_shared<Object>(parent);
   child->name = "New Object";
   child->scale.value = {DEF_MODEL_SCALE, DEF_MODEL_SCALE, DEF_MODEL_SCALE};
-  child->rot.value = glm::identity<glm::quat>();
+  child->rot.value = {0,0,0,1};
   return addObject(parent, child, true);
 }
 

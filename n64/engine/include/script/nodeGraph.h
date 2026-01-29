@@ -27,6 +27,7 @@ namespace P64::NodeGraph
 
     public:
       Object *object{};
+      uint32_t args[2];
 
       Instance() = default;
       ~Instance();

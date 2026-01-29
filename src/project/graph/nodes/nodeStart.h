@@ -24,14 +24,14 @@ namespace Project::Graph::Node
         setStyle(std::make_shared<ImFlow::NodeStyle>(IM_COL32(0xEE, 0xEE, 0xEE, 0xFF), ImColor(0,0,0,255), 4.0f));
 
         addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
-        addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
-        addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
+        //addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
+        //addOUT<TypeLogic>("", PIN_STYLE_LOGIC);
       }
 
       void draw() override {
-        ImGui::Text("After Init");
-        ImGui::Text("On Event");
-        ImGui::Text("On Collision");
+        ImGui::Text("On Start");
+        //ImGui::Text("On Event");
+        //ImGui::Text("On Collision");
       }
 
       void serialize(nlohmann::json &j) override {

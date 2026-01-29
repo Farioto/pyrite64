@@ -107,7 +107,14 @@ bool Build::buildProject(const std::string &path)
   for (const auto &scene : scenes) {
     sceneMapStr += "if(path == \"" + scene.name + "\")return " + std::to_string(scene.id) + ";\n";
     sceneNameStr += "\"" + scene.name + "\",\n";
-    buildScene(project, scene, sceneCtx);
+    try
+    {
+      buildScene(project, scene, sceneCtx);
+    } catch(const std::exception &e)
+    {
+      Utils::Logger::log(std::string("Scene build failed: ") + e.what(), Utils::Logger::LEVEL_ERROR);
+      return false;
+    }
   }
 
   auto sceneTableHeader = Utils::replaceAll(Utils::FS::loadTextFile("data/scripts/sceneTable.h"), {

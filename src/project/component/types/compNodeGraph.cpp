@@ -20,10 +20,12 @@ namespace Project::Component::NodeGraph
   struct Data
   {
     PROP_U64(asset);
+    PROP_BOOL(autoRun);
   };
 
   std::shared_ptr<void> init(Object &obj) {
     auto data = std::make_shared<Data>();
+    data->autoRun.value = true;
     return data;
   }
 
@@ -31,12 +33,14 @@ namespace Project::Component::NodeGraph
     Data &data = *static_cast<Data*>(entry.data.get());
     return Utils::JSON::Builder{}
       .set(data.asset)
+      .set(data.autoRun)
       .doc;
   }
 
   std::shared_ptr<void> deserialize(nlohmann::json &doc) {
     auto data = std::make_shared<Data>();
     Utils::JSON::readProp(doc, data->asset);
+    Utils::JSON::readProp(doc, data->autoRun, true);
     return data;
   }
 
@@ -53,6 +57,8 @@ namespace Project::Component::NodeGraph
     }
 
     ctx.fileObj.write<uint16_t>(id);
+    ctx.fileObj.write<uint8_t>(data.autoRun.resolve(obj) ? 1 : 0);
+    ctx.fileObj.write<uint8_t>(0); // padding
   }
 
   void draw(Object &obj, Entry &entry)
@@ -63,6 +69,8 @@ namespace Project::Component::NodeGraph
       ImTable::add("Name", entry.name);
       auto &assetList = ctx.project->getAssets().getTypeEntries(FileType::NODE_GRAPH);
       ImTable::addVecComboBox("File", assetList, data.asset.value);
+
+      ImTable::addObjProp("Auto Run", data.autoRun);
 
       ImTable::add("Action");
       if(ImGui::Button(ICON_MDI_PENCIL " Edit")) {

@@ -10,17 +10,15 @@
 
 namespace Project::Graph::Node
 {
-  class Value : public Base
+  class Arg : public Base
   {
     private:
       uint16_t value{};
 
-
-
     public:
-      constexpr static const char* NAME = ICON_MDI_NUMERIC " Value";
+      constexpr static const char* NAME = ICON_MDI_NUMERIC " Argument";
 
-      Value()
+      Arg()
       {
         uuid = Utils::Hash::randomU64();
         setTitle(NAME);
@@ -31,7 +29,7 @@ namespace Project::Graph::Node
 
       void draw() override {
         ImGui::SetNextItemWidth(50);
-        ImGui::InputScalar("##Value", ImGuiDataType_U16, &value);
+        ImGui::InputScalar("Index", ImGuiDataType_U16, &value);
       }
 
       void serialize(nlohmann::json &j) override {
@@ -44,7 +42,7 @@ namespace Project::Graph::Node
 
       void build(BuildCtx &ctx) override {
         auto resVar = "res_" + Utils::toHex64(uuid);
-        ctx.globalVar("int", resVar, value);
+        ctx.globalVar("uint32_t&", resVar, std::string{"inst->args[0]"});
       }
   };
 }

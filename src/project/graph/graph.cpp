@@ -16,6 +16,8 @@
 #include "nodes/nodeRepeat.h"
 #include "nodes/nodeFunc.h"
 #include "nodes/nodeCompBool.h"
+#include "nodes/nodeSceneLoad.h"
+#include "nodes/nodeArg.h"
 
 namespace
 {
@@ -75,6 +77,8 @@ namespace Project::Graph
     TABLE_ENTRY(Repeat),
     TABLE_ENTRY(Func),
     TABLE_ENTRY(CompBool),
+    TABLE_ENTRY(SceneLoad),
+    TABLE_ENTRY(Arg),
   });
 
   const std::vector<std::string> & Graph::getNodeNames()

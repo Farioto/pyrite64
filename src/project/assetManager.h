@@ -44,6 +44,7 @@ namespace Project
 
   struct AssetConf
   {
+    uint64_t uuid{0};
     int format{0};
     int baseScale{0};
     bool gltfBVH{0};
@@ -64,7 +65,6 @@ namespace Project
 
   struct AssetManagerEntry
   {
-    uint64_t uuid{0};
     std::string name{};
     std::string path{};
     std::string outPath{};
@@ -77,8 +77,10 @@ namespace Project
     AssetConf conf{};
     Utils::CPP::Struct params{};
 
+    uint64_t getUUID() const { return conf.uuid; }
+
     // imgui selectbox:
-    uint64_t getId() const { return uuid; }
+    uint64_t getId() const { return conf.uuid; }
     const std::string &getName() const { return name; }
   };
 

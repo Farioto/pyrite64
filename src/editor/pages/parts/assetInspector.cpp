@@ -48,7 +48,7 @@ void Editor::AssetInspector::draw() {
     else if (asset->type == FileType::MODEL_3D)
     {
       if (ImTable::add("Base-Scale", asset->conf.baseScale)) {
-        ctx.project->getAssets().reloadAssetByUUID(asset->uuid);
+        ctx.project->getAssets().reloadAssetByUUID(asset->getUUID());
       }
       ImTable::addCheckBox("Create BVH", asset->conf.gltfBVH);
       ImTable::addProp("Collision", asset->conf.gltfCollision);

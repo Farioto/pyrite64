@@ -135,7 +135,7 @@ void Editor::AssetsBrowser::draw() {
         }
       }
 
-      bool isSelected = (ctx.selAssetUUID == asset.uuid);
+      bool isSelected = (ctx.selAssetUUID == asset.getUUID());
       if(isSelected) {
         ImGui::PushStyleColor(ImGuiCol_Button, {0.5f,0.5f,0.7f,1});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0.5f,0.5f,0.7f,0.8f});
@@ -185,14 +185,14 @@ void Editor::AssetsBrowser::draw() {
 
       } else {
         ImGui::PushFont(nullptr, 40.0f);
-        ImGui::PushID((int)asset.uuid);
+        ImGui::PushID((int)asset.getUUID());
           clicked = ImGui::Button(iconTxt, textBtnSize);
         ImGui::PopID();
         ImGui::PopFont();
       }
 
       if (clicked) {
-        ctx.selAssetUUID = asset.uuid == ctx.selAssetUUID ? 0 : asset.uuid;
+        ctx.selAssetUUID = asset.getUUID() == ctx.selAssetUUID ? 0 : asset.getUUID();
       }
 
       if (ImGui::BeginDragDropSource()) {
@@ -201,7 +201,7 @@ void Editor::AssetsBrowser::draw() {
         } else {
           ImGui::Button(iconTxt, textBtnSize);
         }
-        ImGui::SetDragDropPayload("ASSET", &asset.uuid, sizeof(asset.uuid));
+        ImGui::SetDragDropPayload("ASSET", &asset.conf.uuid, sizeof(asset.conf.uuid));
         ImGui::EndDragDropSource();
       }
 
@@ -210,7 +210,7 @@ void Editor::AssetsBrowser::draw() {
       if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
       {
         ImGui::SetTooltip("File: %s\nUUID: %08lX-%08lX", asset.name.c_str(),
-          asset.uuid >> 32, asset.uuid & 0xFFFFFFFF
+          asset.getUUID() >> 32, asset.getUUID() & 0xFFFFFFFF
         );
       }
     }

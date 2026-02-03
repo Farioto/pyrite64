@@ -26,7 +26,7 @@ bool Build::buildFontAssets(Project::Project &project, SceneCtx &sceneCtx)
 
     uint32_t fontId = font.conf.fontId.value;
     if(fontId > 0 && fontId < sceneCtx.autoLoadFontUUIDs.size()) {
-      sceneCtx.autoLoadFontUUIDs[fontId] = font.uuid;
+      sceneCtx.autoLoadFontUUIDs[fontId] = font.getUUID();
     }
 
     if(!assetBuildNeeded(font, outPath))continue;

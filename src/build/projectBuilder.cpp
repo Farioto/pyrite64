@@ -34,7 +34,7 @@ namespace
 
 void Build::SceneCtx::addAsset(const Project::AssetManagerEntry &entry)
 {
-  assetUUIDToIdx[entry.uuid] = assetList.size();
+  assetUUIDToIdx[entry.getUUID()] = assetList.size();
   if(entry.romPath.size() > 5) {
     auto outNameNoPrefix = entry.romPath.substr(5); // remove "rom:/"
     assetFileMap += "if(path == \"" + outNameNoPrefix + "\")return " + std::to_string(assetList.size()) + ";\n";
@@ -54,11 +54,29 @@ bool Build::buildProject(const std::string &path)
   Project::Project project{path};
   Utils::Logger::log("Building project...");
 
+  if(project.conf.pathN64Inst.empty())
+  {
+    // read env
+  #if defined(_WIN32)
+    char* n64InstEnv = nullptr;
+    size_t envSize = 0;
+    if(_dupenv_s(&n64InstEnv, &envSize, "N64_INST") == 0 && n64InstEnv != nullptr) {
+      project.conf.pathN64Inst = n64InstEnv;
+      free(n64InstEnv);
+    }
+  #else
+    char* n64InstEnv = getenv("N64_INST");
+    if(n64InstEnv != nullptr) {
+      project.conf.pathN64Inst = n64InstEnv;
+    }
+  #endif
+  } else {
   #if defined(_WIN32)
     _putenv_s("N64_INST", project.conf.pathN64Inst.c_str());
   #else
     setenv("N64_INST", project.conf.pathN64Inst.c_str(), 0);
   #endif
+  }
 
   auto enginePath = fs::current_path() / "n64" / "engine";
   enginePath = fs::absolute(enginePath);

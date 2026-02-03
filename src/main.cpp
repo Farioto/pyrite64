@@ -258,9 +258,6 @@ int main(int argc, char** argv)
 
     Utils::Logger::clear();
 
-    // TEST:
-    Editor::Actions::call(Editor::Actions::Type::PROJECT_OPEN, "/home/mbeboek/Documents/projects/py64_projects/jam25");
-
     Renderer::Scene scene{};
     ctx.scene = &scene;
     Editor::Main editorMain{ctx.gpu};

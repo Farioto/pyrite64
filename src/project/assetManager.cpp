@@ -59,6 +59,7 @@ namespace
   {
     auto doc = Utils::JSON::loadFile(pathMeta);
     if (doc.is_object()) {
+      conf.uuid = doc.value<uint64_t>("uuid", 0);
       conf.format = doc["format"];
       conf.baseScale = doc["baseScale"];
       conf.compression = (Project::ComprTypes)doc.value<int>("compression", 0);
@@ -77,6 +78,7 @@ namespace
 
 std::string Project::AssetConf::serialize() const {
   return Utils::JSON::Builder{}
+    .set("uuid", uuid)
     .set("format", format)
     .set("baseScale", baseScale)
     .set("compression", static_cast<int>(compression))
@@ -168,8 +170,6 @@ void Project::AssetManager::reload() {
       std::string outPath{};
       outPath = getAssetROMPath(path, projectBase);
 
-      uint64_t uuid = Utils::Hash::sha256_64bit("ASSET:" + path.string());
-
       FileType type = FileType::UNKNOWN;
       if (ext == ".png") {
         type = FileType::IMAGE;
@@ -195,7 +195,6 @@ void Project::AssetManager::reload() {
       romPath.replace(0, std::string{"filesystem/"}.length(), "rom:/");
 
       AssetManagerEntry entry{
-        .uuid = uuid,
         .name = path.filename().string(),
         .path = path.string(),
         .outPath = outPath,
@@ -210,6 +209,10 @@ void Project::AssetManager::reload() {
       pathMeta += ".conf";
       if (type != FileType::UNKNOWN && fs::exists(pathMeta)) {
         deserialize(entry.conf, pathMeta);
+      }
+
+      if(entry.conf.uuid == 0) {
+        entry.conf.uuid = Utils::Hash::randomU64();
       }
 
       if (type == FileType::IMAGE)
@@ -232,7 +235,7 @@ void Project::AssetManager::reload() {
 
       if (type == FileType::PREFAB) {
         reloadEntry(entry, path.string());
-        entry.uuid = entry.prefab->uuid.value;
+        entry.conf.uuid = entry.prefab->uuid.value;
       }
 
       entries[(int)type].push_back(entry);
@@ -285,12 +288,12 @@ void Project::AssetManager::reload() {
       }
 
       AssetManagerEntry entry{
-        .uuid = uuid,
         .name = path.filename().string(),
         .path = path.string(),
         .type = type,
         .params = Utils::CPP::parseDataStruct(code, "Data")
       };
+      entry.conf.uuid = uuid;
 
       entries[(int)type].push_back(entry);
     }
@@ -308,7 +311,7 @@ void Project::AssetManager::reload() {
     int idx = 0;
     for (auto &entry : typed)
     {
-      entriesMap[entry.uuid] = {(int)entry.type, idx};
+      entriesMap[entry.getUUID()] = {(int)entry.type, idx};
       ++idx;
     }
   }
@@ -379,5 +382,5 @@ uint64_t Project::AssetManager::createNodeGraph(const std::string &name)
   reload();
 
   auto entry = getByName(name);
-  return entry ? entry->uuid : 0;
+  return entry ? entry->getUUID() : 0;
 }

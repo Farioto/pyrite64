@@ -30,7 +30,7 @@ Editor::Scene::Scene()
     if(!ctx.project)return false;
     auto assetEntry = ctx.project->getAssets().getEntryByUUID(std::stoull(asset));
     if(assetEntry) {
-      nodeEditors.push_back(std::make_unique<NodeEditor>(assetEntry->uuid));
+      nodeEditors.push_back(std::make_unique<NodeEditor>(assetEntry->getUUID()));
       return true;
     }
     return false;

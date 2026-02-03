@@ -36,7 +36,7 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
     bool hasEvent = Utils::CPP::hasFunction(src, "void", "onEvent");
     bool hasColl = Utils::CPP::hasFunction(src, "void", "onCollision");
 
-    auto uuidStr = std::format("{:016X}", script.uuid);
+    auto uuidStr = std::format("{:016X}", script.getUUID());
 
     srcSizeEntries += uuidStr + "::DATA_SIZE,\n";
 
@@ -57,7 +57,7 @@ void Build::buildScripts(Project::Project &project, SceneCtx &sceneCtx)
     if(hasColl)srcEntries += " .onColl = (FuncObjDataColl)" + uuidStr + "::onCollision,\n";
     srcEntries += "},\n";
 
-    sceneCtx.codeIdxMapUUID[script.uuid] = idx;
+    sceneCtx.codeIdxMapUUID[script.getUUID()] = idx;
 
     //Utils::Logger::log("Script: " + uuidStr + " -> " + std::to_string(idx));
     ++idx;
@@ -116,7 +116,7 @@ void Build::buildGlobalScripts(Project::Project &project, SceneCtx &sceneCtx)
       bool hasFunc = Utils::CPP::hasFunction(src, "void", funcName);
       if (!hasFunc)continue;
 
-      auto uuidStr = std::format("{:016X}", script.uuid);
+      auto uuidStr = std::format("{:016X}", script.getUUID());
 
       srcDecl += "  namespace " + uuidStr + " {\n";
       srcDecl += " void " + funcName + "();\n";

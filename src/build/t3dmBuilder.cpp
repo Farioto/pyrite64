@@ -32,13 +32,13 @@ bool Build::buildT3DCollision(
   auto outPath = projectPath / "filesystem" / fileName;
 
   Project::AssetManagerEntry entry{
-    .uuid = newUUID,
     .name = model->name,
     .path = model->path,
     .outPath = "filesystem/" + fileName,
     .romPath = "rom:/" + fileName,
     .type = Project::FileType::UNKNOWN,
   };
+  entry.conf.uuid = newUUID;
 
   printf("Building T3DM Collision: %s\n", outPath.string().c_str());
   printf(" aasset: %d | %d\n", sceneCtx.files.size(), sceneCtx.assetUUIDToIdx.size());

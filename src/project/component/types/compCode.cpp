@@ -105,7 +105,7 @@ namespace Project::Component::Code
 
       if (idx < (int)scriptList.size()) {
         const auto &script = scriptList[idx];
-        data.scriptUUID = script.uuid;
+        data.scriptUUID = script.getUUID();
 
         ImTable::add("Arguments:");
         if (script.params.fields.empty()) {

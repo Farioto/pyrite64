@@ -25,11 +25,11 @@ bool Build::buildNodeGraphAssets(Project::Project &project, SceneCtx &sceneCtx)
     auto outDir = outPath.parent_path();
     Utils::FS::ensureDir(outPath.parent_path());
 
-    std::string sourceName = Utils::toHex64(asset.uuid) + ".cpp";
+    std::string sourceName = Utils::toHex64(asset.getUUID()) + ".cpp";
     fs::path sourceOutPath = sourcePath / sourceName;
 
     sceneCtx.files.push_back(asset.outPath);
-    sceneCtx.graphFunctions.push_back(asset.uuid);
+    sceneCtx.graphFunctions.push_back(asset.getUUID());
 
     if(!assetBuildNeeded(asset, outPath) && std::filesystem::exists(sourceOutPath))continue;
 
@@ -42,7 +42,7 @@ bool Build::buildNodeGraphAssets(Project::Project &project, SceneCtx &sceneCtx)
     sourceCode += "// AUTO-GENERATED FILE\n";
     sourceCode += "// File: " + asset.getName() + "\n\n";
 
-    graph.build(binFile, sourceCode, asset.uuid);
+    graph.build(binFile, sourceCode, asset.getUUID());
     binFile.writeToFile(outPath);
 
     Utils::FS::saveTextFile(sourceOutPath, sourceCode);

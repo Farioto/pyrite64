@@ -111,7 +111,7 @@ namespace Project::Component::CollMesh
 
       int idx = modelList.size();
       for (int i=0; i<modelList.size(); ++i) {
-        if (modelList[i].uuid == data.modelUUID.resolve(obj.propOverrides)) {
+        if (modelList[i].getUUID() == data.modelUUID.resolve(obj.propOverrides)) {
           idx = i;
           break;
         }
@@ -131,7 +131,7 @@ namespace Project::Component::CollMesh
       const AssetManagerEntry* selModel = nullptr;
       if (idx < (int)modelList.size()) {
         selModel = &modelList[idx];
-        data.modelUUID.value = selModel->uuid;
+        data.modelUUID.value = selModel->getUUID();
       }
 
       ImTable::end();

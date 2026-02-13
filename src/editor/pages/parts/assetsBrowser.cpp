@@ -113,10 +113,10 @@ void Editor::AssetsBrowser::draw() {
   const char* baseLabel = nullptr;
   if (activeTab == TAB_IDX_ASSETS || activeTab == TAB_IDX_PREFABS) {
     basePath = fs::path(ctx.project->getPath()) / "assets";
-    baseLabel = "Assets";
+    baseLabel = ICON_MDI_FOLDER " Assets";
   } else if (activeTab == TAB_IDX_SCRIPTS) {
     basePath = fs::path(ctx.project->getPath()) / "src" / "user";
-    baseLabel = "Scripts";
+    baseLabel = ICON_MDI_FOLDER " Scripts";
   }
   if (baseLabel) {
     std::error_code absEc;
@@ -126,13 +126,23 @@ void Editor::AssetsBrowser::draw() {
     }
   }
 
-  auto availWidth = ImGui::GetContentRegionAvail().x - 4;
-  if(activeTab == TAB_IDX_SCENES)availWidth -= sceneOptionsWidth;
+  auto availWidth = ImGui::GetContentRegionAvail().x - 24;
+  if(activeTab == TAB_IDX_SCENES)availWidth -= sceneOptionsWidth - 4;
 
   ImGui::SameLine();
   ImGui::BeginChild("RIGHT");
 
-  if (baseLabel) {
+  if (baseLabel)
+  {
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_ButtonHovered));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_Button));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_WindowBg));
+
+    ImGui::BeginChild("PATH", ImVec2(0, 21), 0,
+      ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoMove
+    );
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 3));
+
     std::vector<std::string> crumbParts{};
     if (!dirState.empty()) {
       size_t start = 0;
@@ -145,7 +155,7 @@ void Editor::AssetsBrowser::draw() {
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 4));
-    if (ImGui::SmallButton(baseLabel)) {
+    if (ImGui::Button(baseLabel)) {
       dirState.clear();
     }
     std::string accum{};
@@ -154,13 +164,23 @@ void Editor::AssetsBrowser::draw() {
       ImGui::TextUnformatted("/");
       ImGui::SameLine();
       accum = joinDir(accum, part);
-      if (ImGui::SmallButton(part.c_str())) {
+      if (ImGui::Button(part.c_str())) {
         dirState = accum;
       }
     }
-    ImGui::PopStyleVar();
-    ImGui::Dummy({0, 6});
+    ImGui::PopStyleVar(2);
+
+    // search field on the right side
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX() - 160 - 2);
+    ImGui::SetNextItemWidth(160);
+    ImGui::InputTextWithHint("##search", "Filter...", &searchFilter);
+
+    ImGui::EndChild();
+    ImGui::PopStyleColor(3);
   }
+
+  ImGui::BeginChild("ASSETS");
 
   float imageSize = 64;
   float itemWidth = imageSize + 18;
@@ -309,7 +329,11 @@ void Editor::AssetsBrowser::draw() {
     });
 
     for (const auto &folder : folders) {
+      if(!searchFilter.empty() && !folder.contains(searchFilter)) {
+        continue;
+      }
       checkLineBreak();
+
       // Show a filled folder when it contains assets for this tab, outlined (empty) folder otherwise
       const char* folderIcon = folderHasAssets[folder] ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OUTLINE;
       if (drawGridButton(folder.c_str(), ImTextureRef(nullptr), folderIcon, folder, false, 1.0f)) {
@@ -324,6 +348,10 @@ void Editor::AssetsBrowser::draw() {
   for (const auto *assetPtr : assets)
   {
     const auto &asset = *assetPtr;
+    if(!searchFilter.empty() && !asset.name.contains(searchFilter)) {
+      continue;
+    }
+
     checkLineBreak();
 
     auto icon = ImTextureRef(nullptr);
@@ -461,6 +489,6 @@ void Editor::AssetsBrowser::draw() {
     ImGui::EndPopup();
   }
 
-
+  ImGui::EndChild();
   ImGui::EndChild();
 }

@@ -15,6 +15,7 @@ namespace Editor
     private:
       int activeTab{0};
       std::array<std::string, 4> tabDirs{};
+      std::string searchFilter{};
 
     public:
       void draw();

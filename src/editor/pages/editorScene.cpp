@@ -133,7 +133,10 @@ void Editor::Scene::draw()
     assetInspector.draw();
   ImGui::End();
 
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));
   ImGui::Begin("Files");
+  ImGui::PopStyleVar();
+
     assetsBrowser.draw();
   ImGui::End();
 

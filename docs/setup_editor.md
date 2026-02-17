@@ -8,9 +8,11 @@ Below are instructions to get Pyrite64 running on each supported platform:
 
 ## Windows & Linux
 
-Download the latest prebuilt version from GitHub:<br>
-https://github.com/HailToDodongo/pyrite64/actions <br>
-(Alternatively, you can build the editor from [source](./build_editor.md))
+Download the latest release from:
+https://github.com/HailToDodongo/pyrite64/releases
+<br>Or for the latest development build from the GitHub Actions:
+https://github.com/HailToDodongo/pyrite64/actions
+<br>(Alternatively, you can build the editor from [source](./build_editor.md))
 
 Extract the ZIP file on your PC in any directory you want.<br>
 Inside, launch `pyrite64.exe` (or `pyrite64` on linux) to start the editor.
